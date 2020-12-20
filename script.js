@@ -35,11 +35,31 @@ function getInput() {
 // 여기서 node가 마무리됨. end case, 모순 case로. 경우의 수는 밖에서 처리.
 function pickOut(n, i, j) {
     if (candidatesMatrix[i][j].includes(n)) {
+        let index;
         if (candidatesMatrix[i][j].length === 1) {
             // 모순. 일단 return으로 둠.
         }
         else if (candidatesMatrix[i][j].length === 2) {
-            // 완성, count +1
+            // 지워 완성시키고, count +1
+        }
+        else {
+            // 그냥 지우기. 경우의 수를 여기서 따서 저장한 후 비교해야 함.
+            index = candidatesMatrix[i][j].indexOf(n);
+            candidatesMatrix[i][j].splice(index, 1);
+        }
+    }
+}
+
+function firstPickOut(n, i, j) {
+    if (candidatesMatrix[i][j].includes(n)) {
+        if (candidatesMatrix[i][j].length === 1) {
+            // 모순. 일단 return으로 둠.
+        }
+        else if (candidatesMatrix[i][j].length === 2) {
+            // 지워 완성시키고, count +1
+            index = candidatesMatrix[i][j].indexOf(n);
+            candidatesMatrix[i][j].splice(index, 1);
+            newdecided2.push([candidatesMatrix[i][j][0],i,j]);
         }
         else {
             // 그냥 지우기. 경우의 수를 여기서 따서 저장한 후 비교해야 함.
@@ -48,6 +68,7 @@ function pickOut(n, i, j) {
         }
     }
 }
+
 
 
 
@@ -174,20 +195,20 @@ function firstRemove(n,i,j) {
     for (k=0; k<9; k++) {
         // 자기 자신을 지워선 안됨.
         if (k !== j){
-            pickOut(n, i, k);
+            firstPickOut(n, i, k);
         }
     }
     // column
     for (k=0; k<9; k++) {
         if (k !== i) {
-            pickOut(n, k, j);
+            firstPickOut(n, k, j);
         }
     }
     // diag 1
     if (i === j) {
         for (k=0; k<9; k++) {
             if (k !== i) {
-                pickOut(n, k, k);
+                firstPickOut(n, k, k);
             }
         }
     }
@@ -195,7 +216,7 @@ function firstRemove(n,i,j) {
     if (i+j === 8) {
         for (k=0; k<9; k++) {
             if (k != i) {
-                pickOut(n, k, 8-k);
+                firstPickOut(n, k, 8-k);
             }
         }
     }
@@ -205,7 +226,7 @@ function firstRemove(n,i,j) {
             for (k=0; k<3; k++) {
                 for (l=0; l<3; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);         
+                        firstPickOut(n, k, l);         
                     }
                 }
             }        
@@ -213,7 +234,7 @@ function firstRemove(n,i,j) {
             for (k=0; k<3; k++) {
                 for (l=3; l<6; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);         
+                        firstPickOut(n, k, l);         
                     }
                 }
             }
@@ -221,7 +242,7 @@ function firstRemove(n,i,j) {
             for (k=0; k<3; k++) {
                 for (l=6; l<9; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);         
+                        firstPickOut(n, k, l);         
                     }
                 }
             }
@@ -231,7 +252,7 @@ function firstRemove(n,i,j) {
             for (k=3; k<6; k++) {
                 for (l=0; l<3; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }      
@@ -239,7 +260,7 @@ function firstRemove(n,i,j) {
             for (k=3; k<6; k++) {
                 for (l=3; l<6; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }     
@@ -247,7 +268,7 @@ function firstRemove(n,i,j) {
             for (k=3; k<6; k++) {
                 for (l=6; l<9; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }     
@@ -257,7 +278,7 @@ function firstRemove(n,i,j) {
             for (k=6; k<9; k++) {
                 for (l=0; l<3; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }     
@@ -265,7 +286,7 @@ function firstRemove(n,i,j) {
             for (k=6; k<9; k++) {
                 for (l=3; l<6; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }     
@@ -273,7 +294,7 @@ function firstRemove(n,i,j) {
             for (k=6; k<9; k++) {
                 for (l=6; l<9; l++) {
                     if (k != i || l != j) {
-                        pickOut(n, k, l);  
+                        firstPickOut(n, k, l);  
                     }
                 }
             }     
@@ -285,6 +306,30 @@ function firstRemove(n,i,j) {
 
 function solving() {
     // 처음 입력값에 대해 제거 연산(비재귀적) 실행
+    let number;
+    let x;
+    let y;
+    /* for (i=0; i<newdecided.length; i++) {
+        number = newdecided[i][0];
+        x = newdecided[i][1];
+        y = newdecided[i][2];
+        firstRemove(number, x, y);
+    } */
+    while (newdecided.length > 0) {
+        newdecided2 = []; //이렇게 해줘야 loop이 돌 때 마다 초기화 되고, for문 내에서 push될 때 새로운 것만 추가됨. (안했더니 무한 loop발생함)
+        console.log(newdecided.length);
+        for (i=0; i<newdecided.length; i++) {
+            number = newdecided[i][0];
+            x = newdecided[i][1];
+            y = newdecided[i][2];
+            firstRemove(number, x, y);
+       }
+        newdecided = newdecided2;
+    }
+
+
+    /* PERFECT! ㅋㅋ*/
+
     // 그 다음 나온 경우의 수에 따라
 
 }
@@ -297,7 +342,12 @@ solveProblem.addEventListener('click', solving);
 
 
 
+
+
+
+
 // console에서 pickOut, removeCheck 작동 잘된는거 확인할 때..............
+// firstRemove 레전드... 한번에 됐다. 진짜 이것만 돼도 
 
 
 
