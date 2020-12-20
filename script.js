@@ -24,7 +24,7 @@ function getInput() {
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
             if (Number(inputs[i*9+j].value) !== 0) {
-                candidatesMatrix[i][j] = Number(inputs[i*9+j].value);
+                candidatesMatrix[i][j] = [Number(inputs[i*9+j].value)]; //그냥 완성된 칸도 array로 둠. 그래야 code가 일관된 느낌. case처리도 간편.
                 newdecided.push([Number(inputs[i*9+j].value),i,j]);
             }
         }
@@ -32,25 +32,30 @@ function getInput() {
 }
 
 // 각 칸에서 겹치는 숫자 제거. n이 숫자, a는 candidate matrix의 array.
+// 여기서 node가 마무리됨. end case, 모순 case로. 경우의 수는 밖에서 처리.
 function pickOut(n, i, j) {
-    let check = candidatesMatrix[i][j].indexOf(n);
-    if (candidatesMatrix[i][j].length === 1) {
-        if (n === candidatesMatrix[i][j][0]) {
-            // 뽑았는데 array가 비었다면 모순. 일단 임시로 return함.
-            return 0;
+    if (candidatesMatrix[i][j].includes(n)) {
+        if (candidatesMatrix[i][j].length === 1) {
+            // 모순. 일단 return으로 둠.
         }
-    }
-    else if (check !== -1) { // n이 a에 존재한다면
-        candidatesMatrix[i][j] = candidatesMatrix[i][j].splice(check,1);
-            // 종료조건?      
+        else if (candidatesMatrix[i][j].length === 2) {
+            // 완성, count +1
+        }
+        else {
+            // 그냥 지우기. 경우의 수를 여기서 따서 저장한 후 비교해야 함.
+            let index = candidatesMatrix[i][j].indexOf(n);
+            candidatesMatrix[i][j].splice(index, 1);
+        }
     }
 }
 
 
 
 
-// 사각형, 수직선, 수평선, 대각선 모든 칸에 대해 겹치는 숫자 제거. i,j에서 숫자가 하나고 그 숫자가 n일 때
-function remover(n,i,j) {
+// 한 칸이 채워졌을 때(입력 받았을 때) 나머지 후보 지우는 function
+// 사각형, 수직선, 수평선, 대각선 모든 칸에 대해
+// (i,j)에서 n일 때
+function removeCheck(n,i,j) {
     // row
     for (k=0; k<9; k++) {
         // 자기 자신을 지워선 안됨.
@@ -160,14 +165,128 @@ function remover(n,i,j) {
             }     
         }
     }
+
+}
+
+
+function firstRemove(n,i,j) {
+    // row
+    for (k=0; k<9; k++) {
+        // 자기 자신을 지워선 안됨.
+        if (k !== j){
+            pickOut(n, i, k);
+        }
+    }
+    // column
+    for (k=0; k<9; k++) {
+        if (k !== i) {
+            pickOut(n, k, j);
+        }
+    }
+    // diag 1
+    if (i === j) {
+        for (k=0; k<9; k++) {
+            if (k !== i) {
+                pickOut(n, k, k);
+            }
+        }
+    }
+    // diag 2
+    if (i+j === 8) {
+        for (k=0; k<9; k++) {
+            if (k != i) {
+                pickOut(n, k, 8-k);
+            }
+        }
+    }
+    // square
+    if (i<3) {
+        if (j<3) {
+            for (k=0; k<3; k++) {
+                for (l=0; l<3; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);         
+                    }
+                }
+            }        
+        } else if(j<6) {
+            for (k=0; k<3; k++) {
+                for (l=3; l<6; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);         
+                    }
+                }
+            }
+        } else {
+            for (k=0; k<3; k++) {
+                for (l=6; l<9; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);         
+                    }
+                }
+            }
+        }
+    } else if(i<6) {
+        if (j<3) {
+            for (k=3; k<6; k++) {
+                for (l=0; l<3; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }      
+        } else if(j<6) {
+            for (k=3; k<6; k++) {
+                for (l=3; l<6; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }     
+        } else {
+            for (k=3; k<6; k++) {
+                for (l=6; l<9; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }     
+        }
+    } else {
+        if (j<3) {
+            for (k=6; k<9; k++) {
+                for (l=0; l<3; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }     
+        } else if(j<6) {
+            for (k=6; k<9; k++) {
+                for (l=3; l<6; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }     
+        } else {
+            for (k=6; k<9; k++) {
+                for (l=6; l<9; l++) {
+                    if (k != i || l != j) {
+                        pickOut(n, k, l);  
+                    }
+                }
+            }     
+        }
+    }
+
 }
 
 
 function solving() {
-    for (i=0; i<newdecided.length; i++) {
-        remover(newdecided[i][0], newdecided[i][1], newdecided[i][1]);
-    }
-    newdecided = newdecided2;
+    // 처음 입력값에 대해 제거 연산(비재귀적) 실행
+    // 그 다음 나온 경우의 수에 따라
+
 }
 
 
@@ -178,4 +297,8 @@ solveProblem.addEventListener('click', solving);
 
 
 
+// console에서 pickOut, removeCheck 작동 잘된는거 확인할 때..............
 
+
+
+// 내 생각. solving에서 처음 입력값에 대한 제거 연산을 위해 비재귀적인 pickout function을 더 만들어 써야할 듯. 경우의 수가 아니라 확실히 없애는 작업이기 때문.
