@@ -19,24 +19,29 @@ for (i = 0; i < 9; i ++) {
 function getInput() {
     console.log('1');
     inputs = document.querySelectorAll('.number');
-    for (i = 0; i < inputs.length; i++) {
-        decidedCmp[i] = Number(inputs[i].value);
+    for (i = 0; i < 9; i++) {
+        decidedCmp[i] = [];
+        for (j = 0; j < 9; j++) {
+            decidedCmp[i][j] = Number(inputs[i*9+j].value);
+        }
     }
     for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++){
-            if (decidedCmp[9*i+j] !== 0) {
-                candidatesMatrix[i][j] = decidedCmp[9*i+j];
+        for (j = 0; j < 9; j++) {
+            if (decidedCmp[i][j] !== 0) {
+                candidatesMatrix[i][j] = decidedCmp[i][j];
             }
         }
     }
 }
 
+function inspector() {
 
+}
 
 
 
 setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
-solveProblem.addEventListener('click', solving);
+//solveProblem.addEventListener('click', solving);
 
 
 
