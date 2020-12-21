@@ -8,4 +8,10 @@
     display: grid;
     grid-template-columns: repeat(9, 50px);
     grid-template-rows: repeat(9, 50px);
+    grid-gap: 0.5px;
+}
+
+.solution div {
+    border: 1px solid gray;
+    box-shadow:0 0 0 0.5px gray;
 }

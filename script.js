@@ -1,6 +1,6 @@
 let setProblem = document.querySelector('.setProblem'); // 이게 계속 실행이 안됐는데 html <script>에 defer을 넣으니 해결. 아마 html 로딩 전 js가 실행되어 error가 난듯.
 let solveProblem = document.querySelector('.solveProblem');
-let solution = document.querySelector('.solution');
+let solutionDisplay = document.querySelector('.solution');
 
 let inputs = [];    // numbers in problem.
 let newdecided = [];
@@ -336,9 +336,24 @@ function solving() {
 }
 
 
+function displaySolution() {
+    console.log('dis');
+    let sol;
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            sol = document.createElement('div');
+            sol.textContent = candidatesMatrix[i][j][0];
+            solutionDisplay.appendChild(sol);
+        }
+    }
+}
+
+
+
 
 setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
 solveProblem.addEventListener('click', solving);
+solveProblem.addEventListener('click', displaySolution);
 
 
 
