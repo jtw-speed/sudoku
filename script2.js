@@ -12,7 +12,9 @@ let newDecided = [];   // 연산마다 추가되는 확장자
 
 let contrad = 0;    // 1이 되면 모순
 
-
+let samples = [[4, 0, 2], [1, 0, 3], [3, 0, 5], [7, 0, 8], [3, 1, 0], [2, 1, 5], [9, 1, 6], [5, 2, 1], [6, 2, 3], [6, 3, 0], [3, 3, 1], [2, 3, 4], [5, 3, 5], [9, 3, 8], [1, 4, 0], [2, 4, 2], [7, 4, 3], [4, 4, 4], [9, 4, 5], [5, 4, 6], [6, 4, 8], [5, 5, 0], [3, 5, 3], [1, 5, 4], [7, 5, 7], [2, 5, 8], [1, 6, 5], [5, 6, 7], [6, 7, 2], [5, 7, 3], [1, 7, 8], [2, 8, 0], [9, 8, 3], [7, 8, 5], [3, 8, 6]];
+// sample problem.
+let sampleMatrix = []
 
 // initialize candidatesMatrix
 let candidatesMatrix = [];
@@ -38,8 +40,22 @@ function getInput() {
 }
 
 
-function cellRemover() {
-
+function cellRemover(n, i, j) { // (i,j)에 n을 제거
+    if (candidatesMatrix[i][j].includes(n)) {
+        if (candidatesMatrix[i][j].length === 1) {  // 모순
+            contrad = 1;
+            console.log(i,j,n);
+        }
+        else if (candidatesMatrix[i][j].length === 2) { //확정          // 1로 뒀다 error 뜬거 잡음. 어디서 error가 낫는지 예측해봄.
+            index = candidatesMatrix[i][j].indexOf(n);
+            candidatesMatrix[i][j].splice(index, 1);
+            newDecided.push([n, i, j]);
+        }
+        else {
+            index = candidatesMatrix[i][j].indexOf(n);
+            candidatesMatrix[i][j].splice(index, 1);            
+        }
+    }
 }
 
 
@@ -73,7 +89,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
     // diag 2
     if (i+j === 8) {
         for (k=0; k<9; k++) {
-            if (k != i) {
+            if (k !== i) {
                 cellRemover(n, k, 8-k);
             }
         }
@@ -83,7 +99,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         if (j<3) {
             for (k=0; k<3; k++) {
                 for (l=0; l<3; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);         
                     }
                 }
@@ -91,7 +107,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else if(j<6) {
             for (k=0; k<3; k++) {
                 for (l=3; l<6; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);         
                     }
                 }
@@ -99,7 +115,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else {
             for (k=0; k<3; k++) {
                 for (l=6; l<9; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);         
                     }
                 }
@@ -109,7 +125,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         if (j<3) {
             for (k=3; k<6; k++) {
                 for (l=0; l<3; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -117,7 +133,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else if(j<6) {
             for (k=3; k<6; k++) {
                 for (l=3; l<6; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -125,7 +141,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else {
             for (k=3; k<6; k++) {
                 for (l=6; l<9; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -135,7 +151,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         if (j<3) {
             for (k=6; k<9; k++) {
                 for (l=0; l<3; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -143,7 +159,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else if(j<6) {
             for (k=6; k<9; k++) {
                 for (l=3; l<6; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -151,7 +167,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
         } else {
             for (k=6; k<9; k++) {
                 for (l=6; l<9; l++) {
-                    if (k != i || l != j) {
+                    if (k !== i || l !== j) {
                         cellRemover(n, k, l);  
                     }
                 }
@@ -162,7 +178,7 @@ function decidedRemover(singleDecided) {    // 입력 형식 [n,i,j]
 
 // 2. 하나의 확정자 set에 대한 지우기 & check. 이 확정자 set에 포함된 각각의 확정자에 대해 지우고 check.
 function singleSetRemover (decidedSet) {
-    for (i = 1; i < decidedSet.length; i++) {
+    for (i = 0; i < decidedSet.length; i++) {   // i=1 이라고 둬서 오류뜬거 잡음.
         decidedRemover(decidedSet[i]);
         if (contrad) {
             return;
@@ -186,4 +202,41 @@ function setRemoverFirst(decidedSet) {
     decided = [];
     newDecided = [];    // 초기화
 }
+
+
+
+
+
+
+
+
+
+function solving() {
+    setRemoverFirst(firstDecided);
+}
+
+
+
+
+
+
+
+function displaySolution() {
+    let sol;
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            sol = document.createElement('div');
+            sol.textContent = candidatesMatrix[i][j][0];
+            solutionDisplay.appendChild(sol);
+        }
+    }
+}
+
+
+
+
+setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
+solveProblem.addEventListener('click', solving);
+solveProblem.addEventListener('click', displaySolution);
+
 
