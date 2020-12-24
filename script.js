@@ -132,40 +132,67 @@ function getLeastBlankData() {
     }
 }
 
+function locationToSection([i, j]) {     // location array가 속한 section을 찾아주는 function
+    return [i, 9+j, 18+3*Math.floor(i/3)+Math.floor(j/3)]
+}
+
+
+
 
 function solving() {
     initilizeData();
-    let currentSectionIndex;
-    let currentSectionBlankNumber;
-    let currentSectionCandidates;
-    let currentSectionLocations;
+    let sectionIndex;
+    let sectionBlankNumber;
+    let sectionCandidates;
+    let sectionLocations;
 
     let currentCandidate;
     let currentLocation;
     
-    // let fillingCheck;   // 기준 section의 기준 후보에서 각 빈칸 중 채울 수 있는 칸의 개수. 1이면 바로 채움. 그냥 fillinglocation 요소의 합으로 해봄.
-    let fillingLocation;    // 기준 section의 기준 후보에서 각 빈칸에 채울 수 있으면 1, 없으면 0 저장. 차후 채울 때 이를 기준으로 채움.
+    let fillingCheck;   // 기준 section의 기준 후보에서 각 빈칸 중 채울 수 있는 칸의 개수. 1이면 바로 채움. 그냥 fillinglocation 요소의 합보다 간편.
+    let fillingInfo;    // 기준 section의 기준 후보에서 각 빈칸에 채울 수 있으면 1, 없으면 0 저장. 차후 채울 때 이를 기준으로 채움.
+
+    let containerSectionIndex;   // 빈 칸 포함하는 section index.
+    let compareArray;
+
+    let x;
 
     while(blankCounter > 0) {
-        currentSectionIndex = getLeastBlankData();      // 최저 빈칸 section index(기준 section)
+        sectionIndex = getLeastBlankData();      // 최저 빈칸 section index(기준 section)
         // 현재 기준 section에 대해
-        currentSectionBlankNumber = blankNumbers[currentSectionIndex];
-        currentSectionCandidates = candidates[currentSectionIndex];
-        currentSectionLocations = blankLocations[currentSectionIndex];
+        sectionBlankNumber = blankNumbers[sectionIndex];
+        sectionCandidates = candidates[sectionIndex];
+        sectionLocations = blankLocations[sectionIndex];
 
-        if (currentSectionBlankNumber == 1) {   // section에 빈 칸이 하나일 때
+        if (sectionBlankNumber == 1) {   // section에 빈 칸이 하나일 때
             // 채우기, data update, 빈칸 counter --
         }
         else {  // section에 빈 칸이 하나 이상일 때. 0인 경우는 getLeastBlankData에서 취급하지 않기에 걸러짐.
-            // 각각의 후보에 대해
-            for (i = 0; i < currentSectionBlankNumber; i++) {
-                currentCandidate = currentSectionCandidates[i];
-                // 각각의 빈칸에 대해
-                fillingLocation = [];
-                for (j = 0; j < currentSectionBlankNumber; j++){
-                    currentLocation = currentSectionLocations[j];
-
+            for (i = 0; i < sectionBlankNumber; i++) {   // 각각의 후보에 대해
+                currentCandidate = sectionCandidates[i];
+                fillingInfo = [];
+                fillingCheck = 0;
+                for (j = 0; j < sectionBlankNumber; j++){    // 각각의 빈칸에 대해
+                    currentLocation = sectionLocations[j];
+                    containerSectionIndex = locationToSection(currentLocation);
+                    // 빈 칸 포함 section 3개 중 기준 section 제외
+                    containerSectionIndex.splice(containerSectionIndex.indexOf(sectionIndex));
+                    // 빈칸 포함하는 section의 후보군을 합침. 기존 후보가 이 array에 2개 있으면 들어갈 수 있고, 하나라도 없으면 못 들어감.
+                    compareArray = candidates[containerSectionIndex[0]].concat(containerSectionIndex[1]);
+                    for (i = 0; i < compareArray.length; i++) {
+                        x = 0;
+                        if (currentCandidate === compareArray[i]) {
+                            x++;
+                        }
+                    }
+                    if (x === 2) {      // 해당 빈칸에 해당 후보를 채울 수 있다.
+                        fillingInfo.push(1);
+                    }
+                    else {
+                        fillingInfo.push(0);
+                    }
                 }
+
             }
 
         }
