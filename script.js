@@ -136,7 +136,37 @@ function locationToSection([i, j]) {     // location array가 속한 section을 
     return [i, 9+j, 18+3*Math.floor(i/3)+Math.floor(j/3)]
 }
 
+function matchLocation(sectionLocations, location) {      // section의 location data 중 일치하는 index 반환
+    for (i = 0; i < sectionLocations.length; i++) {
+        if (sectionLocations[i][0] === location[0] && sectionLocations[i][1] === location[1]) {
+            return i;
+        }
+    }
+}
 
+function fillUpdate(n, [i, j]) {
+    /* 채우는 숫자 n, 해당 좌표 (i, j)를 입력. 포함 section의 blankNumbers, candidates, blankLocations를 update하고, counter--
+    */
+   let sections;    // [포함 row section, 포함 column section, 포함 block section]
+   let newBlankNumber;
+   let spliceIndex;
+   
+   sudokuMatrix[i][j] = n;
+   blankCounter--;
+
+   sections = locationToSection([i,j]);
+   for (k = 0; k < sections; k++) {
+       // 빈칸 수 update
+       blankNumbers[k] = blankNumbers[k] - 1;
+       // 후보군 update
+       spliceIndex = candidates[k].indexOf(n);
+       candidates[k].splice(spliceIndex, 1);
+       // 위치 update
+       spliceIndex = matchLocation(blankLocations[k], [i, j]);
+       blankLocations[k].splice(spliceIndex, 1);
+   }
+
+}
 
 
 function solving() {
@@ -156,6 +186,7 @@ function solving() {
     let compareArray;
 
     let x;
+    let index;
 
     while(blankCounter > 0) {
         sectionIndex = getLeastBlankData();      // 최저 빈칸 section index(기준 section)
@@ -166,6 +197,7 @@ function solving() {
 
         if (sectionBlankNumber == 1) {   // section에 빈 칸이 하나일 때
             // 채우기, data update, 빈칸 counter --
+            fillUpdate(sectionCandidates[0], sectionLocations[0])
         }
         else {  // section에 빈 칸이 하나 이상일 때. 0인 경우는 getLeastBlankData에서 취급하지 않기에 걸러짐.
             for (i = 0; i < sectionBlankNumber; i++) {   // 각각의 후보에 대해
@@ -187,10 +219,17 @@ function solving() {
                     }
                     if (x === 2) {      // 해당 빈칸에 해당 후보를 채울 수 있다.
                         fillingInfo.push(1);
+                        fillingCheck++;
                     }
                     else {
                         fillingInfo.push(0);
                     }
+                }
+                // 들어갈 수 있는 빈 칸이 하나라면 채운다
+                if (fillingCheck === 1) {
+                    // 채우고 업데이트
+                    index = fillingInfo.indexOf(1);
+                    fillUpdate(currentCandidate, sectionLocations[index]);
                 }
 
             }
