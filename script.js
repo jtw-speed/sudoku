@@ -15,7 +15,7 @@ let solutionDisplay = document.querySelector('.solution');
 let blankNumbers = [];
 let candidates = [];
 let blankLocations = [];
-let blankCounter;    // 전체 matrix의 빈칸 수. 0이 되면 종료.
+let blankCounter = 81;    // 전체 matrix의 빈칸 수. 0이 되면 종료.
 
 // sudoku matrix
 let sudokuMatrix = [];
@@ -53,6 +53,7 @@ function initilizeData() {
             if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                 sectionLocations.push([i,j]);
                 sectionBlankNumber++;
+                blankCounter--;
             }
             else {  // 차있을 경우
                 spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -74,6 +75,7 @@ function initilizeData() {
             if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                 sectionLocations.push([i,j]);
                 sectionBlankNumber++;
+                blankCounter--;
             }
             else {  // 차있을 경우
                 spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -100,6 +102,7 @@ function initilizeData() {
                 if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                     sectionLocations.push([i,j]);
                     sectionBlankNumber++;
+                    blankCounter--;
                 }
                 else {  // 차있을 경우
                     spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -113,11 +116,61 @@ function initilizeData() {
     }
 }
 
+/*
+let currentSection;                 필요 없을듯.. return으로 index값만 받아와 처리 가능.
+let currentCandidates;
+let currentLocations;
+*/
+
+function getLeastBlankData() {
+    for (i = 1; i < 9; i++) {
+        for (j = 0; j < 26; j++) {
+            if (blankNumbers[j] === i) {
+                return j;
+            }
+        }
+    }
+}
 
 
+function solving() {
+    initilizeData();
+    let currentSectionIndex;
+    let currentSectionBlankNumber;
+    let currentSectionCandidates;
+    let currentSectionLocations;
 
+    let currentCandidate;
+    let currentLocation;
+    
+    // let fillingCheck;   // 기준 section의 기준 후보에서 각 빈칸 중 채울 수 있는 칸의 개수. 1이면 바로 채움. 그냥 fillinglocation 요소의 합으로 해봄.
+    let fillingLocation;    // 기준 section의 기준 후보에서 각 빈칸에 채울 수 있으면 1, 없으면 0 저장. 차후 채울 때 이를 기준으로 채움.
 
+    while(blankCounter > 0) {
+        currentSectionIndex = getLeastBlankData();      // 최저 빈칸 section index(기준 section)
+        // 현재 기준 section에 대해
+        currentSectionBlankNumber = blankNumbers[currentSectionIndex];
+        currentSectionCandidates = candidates[currentSectionIndex];
+        currentSectionLocations = blankLocations[currentSectionIndex];
 
+        if (currentSectionBlankNumber == 1) {   // section에 빈 칸이 하나일 때
+            // 채우기, data update, 빈칸 counter --
+        }
+        else {  // section에 빈 칸이 하나 이상일 때. 0인 경우는 getLeastBlankData에서 취급하지 않기에 걸러짐.
+            // 각각의 후보에 대해
+            for (i = 0; i < currentSectionBlankNumber; i++) {
+                currentCandidate = currentSectionCandidates[i];
+                // 각각의 빈칸에 대해
+                fillingLocation = [];
+                for (j = 0; j < currentSectionBlankNumber; j++){
+                    currentLocation = currentSectionLocations[j];
+
+                }
+            }
+
+        }
+    }
+}
 
 
 
