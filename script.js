@@ -15,7 +15,7 @@ let solutionDisplay = document.querySelector('.solution');
 let blankNumbers = [];
 let candidates = [];
 let blankLocations = [];
-let blankCounter = 81;    // 전체 matrix의 빈칸 수. 0이 되면 종료.
+let blankCounter = 0;    // 전체 matrix의 채워진 수. 0이 되면 종료.
 
 // sudoku matrix
 let sudokuMatrix = [];
@@ -53,7 +53,7 @@ function initilizeData() {
             if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                 sectionLocations.push([i,j]);
                 sectionBlankNumber++;
-                blankCounter--;                     // 한 section에만 있으면 됨. 아니면 중복 처리되어 3배로 빠짐.
+                blankCounter++;                     // 한 section에만 있으면 됨. 아니면 중복 처리되어 3배로 빠짐.
             }
             else {  // 차있을 경우
                 spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -122,7 +122,7 @@ let currentLocations;
 
 function getLeastBlankData() {
     let a = [];                              // 하....... 비효율.
-    for (i = 1; i < 9; i++) {
+    for (i = 1; i < 10; i++) {                  // 1~9이므로 i < 10
         for (j = 0; j < 26; j++) {
             if (blankNumbers[j] === i) {
                 a.push(j);
@@ -133,7 +133,7 @@ function getLeastBlankData() {
 }
 
 function locationToSection([i, j]) {     // location array가 속한 section을 찾아주는 function
-    return [i, 9+j, 18+3*Math.floor(i/3)+Math.floor(j/3)]
+    return [i, 9+j, 18+3*Math.floor(i/3)+Math.floor(j/3)];
 }
 
 function matchLocation(sectionLocations, location) {      // section의 location data 중 일치하는 index 반환
@@ -170,6 +170,7 @@ function fillUpdate(n, [i, j]) {
 
 
 function solving() {
+    console.log('start');
     initilizeData();
     let sectionIndex;
     let sectionBlankNumber;
@@ -189,6 +190,7 @@ function solving() {
     let index;
 
     while(blankCounter > 0) {
+        console.log('while');
         sectionIndex = getLeastBlankData()[0];      // 최저 빈칸 section index(기준 section)
         // 현재 기준 section에 대해
         sectionBlankNumber = blankNumbers[sectionIndex];
@@ -210,7 +212,7 @@ function solving() {
                     // 빈 칸 포함 section 3개 중 기준 section 제외
                     containerSectionIndex.splice(containerSectionIndex.indexOf(sectionIndex));
                     // 빈칸 포함하는 section의 후보군을 합침. 기존 후보가 이 array에 2개 있으면 들어갈 수 있고, 하나라도 없으면 못 들어감.
-                    compareArray = candidates[containerSectionIndex[0]].concat(containerSectionIndex[1]);
+                    compareArray = candidates[containerSectionIndex[0]].concat(candidates[containerSectionIndex[1]]);
                     for (i = 0; i < compareArray.length; i++) {
                         x = 0;
                         if (currentCandidate === compareArray[i]) {
