@@ -53,7 +53,7 @@ function initilizeData() {
             if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                 sectionLocations.push([i,j]);
                 sectionBlankNumber++;
-                blankCounter--;
+                blankCounter--;                     // 한 section에만 있으면 됨. 아니면 중복 처리되어 3배로 빠짐.
             }
             else {  // 차있을 경우
                 spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -75,7 +75,6 @@ function initilizeData() {
             if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                 sectionLocations.push([i,j]);
                 sectionBlankNumber++;
-                blankCounter--;
             }
             else {  // 차있을 경우
                 spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -102,7 +101,6 @@ function initilizeData() {
                 if (sudokuMatrix[i][j] === 0) { // 빈칸일 경우
                     sectionLocations.push([i,j]);
                     sectionBlankNumber++;
-                    blankCounter--;
                 }
                 else {  // 차있을 경우
                     spliceIndex = sectionCandidates.indexOf(sudokuMatrix[i][j]);
@@ -123,13 +121,15 @@ let currentLocations;
 */
 
 function getLeastBlankData() {
+    let a = [];                              // 하....... 비효율.
     for (i = 1; i < 9; i++) {
         for (j = 0; j < 26; j++) {
             if (blankNumbers[j] === i) {
-                return j;
+                a.push(j);
             }
         }
     }
+    return a;
 }
 
 function locationToSection([i, j]) {     // location array가 속한 section을 찾아주는 function
@@ -189,7 +189,7 @@ function solving() {
     let index;
 
     while(blankCounter > 0) {
-        sectionIndex = getLeastBlankData();      // 최저 빈칸 section index(기준 section)
+        sectionIndex = getLeastBlankData()[0];      // 최저 빈칸 section index(기준 section)
         // 현재 기준 section에 대해
         sectionBlankNumber = blankNumbers[sectionIndex];
         sectionCandidates = candidates[sectionIndex];
@@ -231,6 +231,9 @@ function solving() {
                     index = fillingInfo.indexOf(1);
                     fillUpdate(currentCandidate, sectionLocations[index]);
                 }
+                else {  // 기준 section에서 채워지지 않을 때... 이게 문제.
+
+                }
 
             }
 
@@ -246,4 +249,4 @@ function solving() {
 
 
 setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
-solveProblem.addEventListener('click', initilizeData);
+// solveProblem.addEventListener('click', solving);
