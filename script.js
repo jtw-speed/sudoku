@@ -92,7 +92,7 @@ function initilizeData() {
     // block sections
     let startI;
     let startJ;
-    for (blockIndex = 0; blockIndex < 8; blockIndex++) {
+    for (blockIndex = 0; blockIndex < 9; blockIndex++) {                            // 하... 이게 9가 아니라 8로 되어있어 오류가 계속 났었음... 애초에 array 개수가 26이 안되는데 왜 몰랏지.
         // block index th block
         sectionBlankNumber = 0;
         sectionCandidates = [1,2,3,4,5,6,7,8,9];
@@ -286,7 +286,7 @@ function solvingSimple() {
 
     let key = 0;
 
-    while(blankCounter > 6 /*원래는 0. 6에서 무한루프 돌아서 6으로 둠*/) {
+    while(blankCounter > 0 /*원래는 0. 6에서 무한루프 돌아서 6으로 둠*/) {
         console.log('while, blankCounter' + blankCounter);
         sectionIndex = key%27;      // 최저 빈칸 section index(기준 section)
         console.log('current section '+sectionIndex);
@@ -316,6 +316,8 @@ function solvingSimple() {
                     containerSectionIndex.splice(containerSectionIndex.indexOf(sectionIndex), 1);
                     // 빈칸 포함하는 section의 후보군을 합침. 기존 후보가 이 array에 2개 있으면 들어갈 수 있고, 하나라도 없으면 못 들어감.
                     compareArray = candidates[containerSectionIndex[0]].concat(candidates[containerSectionIndex[1]]);
+                    console.log(currentLocation);
+                    console.log(containerSectionIndex);
                     console.log(compareArray);
                     x = 0;                              // for문 전에 이걸 넣어야지... 하...
                     for (k = 0; k < compareArray.length; k++) {                        
