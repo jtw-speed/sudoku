@@ -262,7 +262,94 @@ function solving() {
 }
 
 
+function solvingSimple() {
+    console.log('start');
+    initilizeData();
+    let sectionIndex;
+    let sectionBlankNumber;
+    let sectionCandidates;
+    let sectionLocations;
 
+    let currentCandidate;
+    let currentLocation;
+    
+    let fillingCheck;   // 기준 section의 기준 후보에서 각 빈칸 중 채울 수 있는 칸의 개수. 1이면 바로 채움. 그냥 fillinglocation 요소의 합보다 간편.
+    let fillingInfo;    // 기준 section의 기준 후보에서 각 빈칸에 채울 수 있으면 1, 없으면 0 저장. 차후 채울 때 이를 기준으로 채움.
+
+    let containerSectionIndex;   // 빈 칸 포함하는 section index.
+    let compareArray;
+
+    let x;
+    let index;
+    let m = 0;
+    let check;
+
+    let key = 0;
+
+    while(blankCounter > 6 /*원래는 0. 6에서 무한루프 돌아서 6으로 둠*/) {
+        console.log('while, blankCounter' + blankCounter);
+        sectionIndex = key%27;      // 최저 빈칸 section index(기준 section)
+        console.log('current section '+sectionIndex);
+        // 현재 기준 section에 대해
+        sectionBlankNumber = blankNumbers[sectionIndex];
+        check = sectionBlankNumber;
+        sectionCandidates = candidates[sectionIndex];
+        sectionLocations = blankLocations[sectionIndex];
+
+        if (sectionBlankNumber == 1) {   // section에 빈 칸이 하나일 때
+            // 채우기, data update, 빈칸 counter --
+            console.log('section'+sectionIndex+'한 칸 '+sectionCandidates[0]+' '+sectionLocations[0]);
+            fillUpdate(sectionCandidates[0], sectionLocations[0]);
+        }
+        else if (sectionBlankNumber == 0) {
+
+        }
+        else {  // section에 빈 칸이 하나 이상일 때. 0인 경우는 getLeastBlankData에서 취급하지 않기에 걸러짐.... 이었지만 simple에서는 0도 들어갈 수 있기에 처리
+            for (i = 0; i < sectionBlankNumber; i++) {   // 각각의 후보에 대해
+                currentCandidate = sectionCandidates[i];
+                fillingInfo = [];
+                fillingCheck = 0;
+                for (j = 0; j < sectionBlankNumber; j++){    // 각각의 빈칸에 대해
+                    currentLocation = sectionLocations[j];
+                    containerSectionIndex = locationToSection(currentLocation);
+                    // 빈 칸 포함 section 3개 중 기준 section 제외
+                    containerSectionIndex.splice(containerSectionIndex.indexOf(sectionIndex), 1);
+                    // 빈칸 포함하는 section의 후보군을 합침. 기존 후보가 이 array에 2개 있으면 들어갈 수 있고, 하나라도 없으면 못 들어감.
+                    compareArray = candidates[containerSectionIndex[0]].concat(candidates[containerSectionIndex[1]]);
+                    console.log(compareArray);
+                    x = 0;                              // for문 전에 이걸 넣어야지... 하...
+                    for (k = 0; k < compareArray.length; k++) {                        
+                        if (currentCandidate === compareArray[k]) {
+                            x++;
+                        }
+                    }
+                    if (x === 2) {      // 해당 빈칸에 해당 후보를 채울 수 있다.
+                        fillingInfo.push(1);
+                        fillingCheck++;
+                    }
+                    else {
+                        fillingInfo.push(0);
+                    }
+                }
+                // 들어갈 수 있는 빈 칸이 하나라면 채운다
+                if (fillingCheck === 1) {
+                    // 채우고 업데이트
+                    index = fillingInfo.indexOf(1);
+                    console.log('possible blank, filled, '+currentCandidate+' '+sectionLocations[index]);
+                    fillUpdate(currentCandidate, sectionLocations[index]);
+                    break;
+                }
+                else {  // 빈 칸이 여러개면 그냥 놔둠.
+                    console.log('hi');
+                    //여기서 무한 루프 발생.
+                    //  기준 section의 모든 후보가 들어갈 수 없을 때를 처리하지 않아서 그럼. 해당 경우 다음 section으로 넘어가야 함.
+                }
+
+            }
+        }
+        key++;
+    }
+}
 
 
 
