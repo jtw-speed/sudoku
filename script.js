@@ -354,8 +354,19 @@ function solvingSimple() {
 }
 
 
-
+function displaySolution() {
+    let sol;
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            sol = document.createElement('div');
+            sol.textContent = sudokuMatrix[i][j];
+            solutionDisplay.appendChild(sol);
+        }
+    }
+}
 
 
 setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
-// solveProblem.addEventListener('click', solving);
+solveProblem.addEventListener('click', solvingSimple);
+solveProblem.addEventListener('click', displaySolution);
+
