@@ -20,6 +20,9 @@ let blankCounter = 0;    // 전체 matrix의 채워진 수. 0이 되면 종료.
 // sudoku matrix
 let sudokuMatrix = [];
 
+// sample data
+let sample =[[0, 0, 4, 1, 0, 3, 0, 0, 7], [3, 0, 0, 0, 0, 2, 9, 0, 0], [0, 5, 0, 6, 0, 0, 0, 0, 0], [6, 3, 0, 0, 2, 5, 0, 0, 9], [1, 0, 2, 7, 4, 9, 5, 0, 6], [5, 0, 0, 3, 1, 0, 0, 7, 2], [0, 0, 0, 0, 0, 1, 0, 5, 0], [0, 0, 6, 5, 0, 0, 0, 0, 1], [2, 0, 0, 9, 0, 7, 3, 0, 0]];
+
 
 
 // input data(problem data)를 가져옴. 해당 정보를 matrix에 저장.
@@ -155,7 +158,7 @@ function fillUpdate(n, [i, j]) {
    blankCounter--;
 
    sections = locationToSection([i,j]);
-   for (k = 0; k < sections; k++) {
+   for (k = 0; k < sections.length; k++) {
        // 빈칸 수 update
        blankNumbers[k] = blankNumbers[k] - 1;
        // 후보군 update
@@ -232,6 +235,7 @@ function solving() {
                     // 채우고 업데이트
                     index = fillingInfo.indexOf(1);
                     fillUpdate(currentCandidate, sectionLocations[index]);
+                    break;
                 }
                 else {  // 기준 section에서 채워지지 않을 때... 이게 문제.
 
