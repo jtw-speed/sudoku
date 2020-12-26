@@ -1,4 +1,4 @@
-                        // 완전히 틀림
+                        // 완전히 틀리...진 않았고 일단 쉬운 sudoku부터 바로풀 수 있는 알고리즘부터.
 // flow chart 기반으로 다시.
 
 // get html tag information.
@@ -227,7 +227,7 @@ function displaySolution() {
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
             sol = document.createElement('div');
-            sol.textContent = candidatesMatrix[i][j][0];
+            sol.textContent = candidatesMatrix[i][j];
             solutionDisplay.appendChild(sol);
         }
     }
