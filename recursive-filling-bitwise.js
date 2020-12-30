@@ -12,13 +12,11 @@ let solutionDisplay = document.querySelector('.solution');
 뭐랄까 메모리를 크게 두고 이것저것 저장할 수록 연산 시간은 줄어드는 느낌이다.
 매번 반복되는 연산 대신에 기존에 저장한 값을 그냥 불러오기만 하면 되니까...
 많은 연산을 필요로 하는 데이터는 저장해두는 것도 나쁘지 않은 것 같다.
-
-그래서 되는 고민2. 스도쿠 행렬 대신 section별 data를 따로둘까?
-두자 data는 커지겠지만 연산 효율은 높아질 수 있다.
-특히 section별 처리도 쉬워지고 나중에 section간의 우선순위도 둘 수 있다고 생각.
 */
 
-/*  필요없음. 
+/* section별 data는 필요없음.*/
+
+
 let sudokuMatrix = [];
 // sudokuMatrix를 1111111111([1,2,3,4,5,6,7,8,9] 그리고 채우기 전이다)로 설정. 1111111111=2^11-1=2047
 for (i = 0; i < 9; i++) {
@@ -27,15 +25,9 @@ for (i = 0; i < 9; i++) {
         sudokuMatrix[i].push(2047);
     }
 }
-*/
 
 
-/* section data 형식을 어떻게 할 것인가?
-역시 연산 속도에 얼마만큼의 중점을 두느냐에 따라 다름.
-후보군, 위치 [sec0 sec1 ... sec 26]
-후보군 sec n = [11011, 11001 ...] (빈칸 수)
-위치 sec n = [[1,2], [2,3] ...] (빈칸 수)
-후보군, 위치 같은 index
+
 
 
 
@@ -48,7 +40,7 @@ for (i = 0; i < 9; i++) {
 */
 
 
-function remove
+
 
 
 // input number(problem number)가 존재하는 칸의 경우, 숫자를 bit 형식으로 변환하고, 포함 sectino에 대해 후보 제거 연산.
@@ -70,3 +62,68 @@ function getInput() {
 -> loop 밖에서 정의하고 loop내에서 초기화 하는 것이 더 좋을 것 같긴 한데 실제로 차이가 있을까?
 삭제자? 생성자? 때문에 차이는 있지만 효율의 차이는 신경 안써도 될 듯.
 다만 variable의 scope가 달라지기에 이는 신경써야 함 */
+
+
+
+
+
+
+
+
+
+
+
+/* recursive filling
+한 section을 입력하면, 해당 section에서 single N, single B를 통해 채울 수 있는 요소를 찾고,
+해당하는 요소가 포함된 section에 대해 같은 연산을 재귀적으로 실행.
+종료 조건은 그냥 채울 수 있는 요소가 없을 경우.*/
+
+/*
+functino recursiveFilling(section1)
+single N 검사
+요소 있으면
+    포함 section 계산, 포함 section에 대해 재귀연산
+single B 검사
+요소 있으면
+    포함 sectino 계산, 포함 section에 대해 재귀연산
+종료.*/
+
+/* single N
+section의 모든 빈칸에 대해
+채워지지 않았고(bit 마지막 자리가 1), 나머지 중 하나만 1일 때 추출
+k&(k-1)을 하면 자리가 하나일 경우 0이 나온다.
+
+해당 빈 칸의 숫자를 k
+if k & 1 > 0
+    if k&(k-1) > 0
+        채울 수 있음!
+*/
+
+
+
+function recursiveFilling(section) {
+    let k;
+    // 먼저 section 종류 구분
+    if (section < 9) {    // row
+        //single N
+        for (i = 0; i < 9; i++) {
+            k = sudokuMatrix[section][i];
+            if (k & 1 > 0) {    // 채워지지 않음.
+                if (k&(k-1) > 0) {
+                    recursiveFilling(section);      // row(itself)
+                    recursiveFilling(i + 9);        // column
+                    recursiveFilling();             
+                }
+            }
+        }
+    }
+    else if (section < 18) {    // column
+        for (i = 0; i < 9; i ++) {
+            // single N...  sudokuMatrix[i][section%27]
+        }
+    }
+    else {      // block
+
+    }
+
+}
