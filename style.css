@@ -6,7 +6,7 @@
 
 .solution {
     display: grid;
-    grid-template-columns: repeat(9, 50px);
+    grid-template-columns: repeat(9, 150px);
     grid-template-rows: repeat(9, 50px);
     grid-gap: 0.5px;
 }

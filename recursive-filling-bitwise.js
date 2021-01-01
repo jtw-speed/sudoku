@@ -22,9 +22,22 @@ let sudokuMatrix = [];
 for (i = 0; i < 9; i++) {
     sudokuMatrix.push([]);
     for (j = 0; j < 9; j++) {
-        sudokuMatrix[i].push(2047);
+        sudokuMatrix[i].push(1023);
     }
 }
+
+/*sample*/
+sudokuMatrix = [
+[99, 128, 355, 333, 297, 512, 39, 16, 293]
+,[4, 769, 8, 2, 16, 417, 673, 289, 64]
+,[627, 769, 883, 325, 417, 481, 679, 8, 933]
+,[256, 525, 597, 537, 523, 11, 111, 128, 45]
+,[25, 2, 145, 32, 64, 4, 9, 512, 265]
+,[585, 32, 709, 777, 907, 395, 79, 323, 16]
+,[555, 16, 807, 841, 811, 363, 745, 97, 681]
+,[128, 521, 545, 585, 4, 16, 256, 97, 2]
+,[555, 64, 803, 128, 811, 299, 569, 4, 553]
+];
 
 
 
@@ -43,7 +56,6 @@ sudokuMatrix의 해당 위치를 입력 숫자로 변경한다.
 function addNumber(n, i, j) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
-    sudokuMatrix[i][j] = n;
     // row
     for (k = 0; k < 9; k++) {
         sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
@@ -60,25 +72,27 @@ function addNumber(n, i, j) {       // n은 0000100000 이런 형식
             sudokuMatrix[k][l] = sudokuMatrix[k][l] & ~n;            
         }
     }
+    sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
 }
-
+// test 완
 
 
 
 // input number(problem number)가 존재하는 칸의 경우, 숫자를 bit 형식으로 변환하고, 포함 sectino에 대해 후보 제거 연산.
 function getInput() {
     console.log('got input');
-    inputs = document.querySelectorAll('.number');
+    let inputs = document.querySelectorAll('.number');
     let num;
     for (i = 0; i < 9; i++) {
-        sudokuMatrix.push([]);
         for (j = 0; j < 9; j++) {
             num = Number(inputs[i*9+j].value);
-            
-            sudokuMatrix[i][j] = Number(inputs[i*9+j].value);     // input value의 index에 대응하는 matrix location으로 숫자 입력. 빈칸은 0가 됨.
+            if (num !== 0) {
+                addNumber(1 << num, i, j);
+            }
         }
     }
 }
+// test 완
 
 /* 고민1. loop 안에서 변수를 정의하고 초기화하는 것이 메모리나 시간 효율을 떨어트리지 않을까?
 -> loop 밖에서 정의하고 loop내에서 초기화 하는 것이 더 좋을 것 같긴 한데 실제로 차이가 있을까?
@@ -273,11 +287,13 @@ function recursiveFilling(section) {
 /* bit to number in Matrix*/
 function bitToNum() {
     let m;
+    let a;
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
             m = [];
+            a = sudokuMatrix[i][j];
             for (k = 0; k < 10; k++) {
-                if (sudokuMatrix[i][j] & (1 << k) !== 0) {
+                if ( (a & (1 << k)) !== 0) {
                     m.push(k);
                 }
             }
@@ -285,4 +301,27 @@ function bitToNum() {
         }
     }
 }
+// test 완
 
+
+
+
+
+
+function displaySolution() {
+    bitToNum();
+    let sol;
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            sol = document.createElement('div');
+            sol.textContent = sudokuMatrix[i][j];
+            solutionDisplay.appendChild(sol);
+        }
+    }
+}
+// test 완
+
+
+setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
+solveProblem.addEventListener('click', solvingSimple);
+solveProblem.addEventListener('click', displaySolution);
