@@ -43,7 +43,7 @@ sudokuMatrix의 해당 위치를 입력 숫자로 변경한다.
 function addNumber(n, i, j) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
-    sudokuMatris[i][j] = n;
+    sudokuMatrix[i][j] = n;
     // row
     for (k = 0; k < 9; k++) {
         sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
@@ -123,62 +123,166 @@ if k & 1 > 0
 /* single B
 
 -> 까다로움.
-내가 생각한 방식은 연산자 *: 0*0=1*1=0, 0*1=1*0=1로 두고(xor), 1이 두 번 나올 경우 아예 취급하지 않게끔 나머지 대상에 대해 해당 자리를 모두 0으로 만들기
-1*1=0이고 다음 1이 나오는 자리는 0이 되고 0*0=0이므로, 1이 두 번 이상 나올 경우 0이 된다.
-0만 나오는 경우도 0*0*... = 0이므로 0
-1이 한 번만 나오는 경우만 0*1=1*0=1로 1이 됨.
-(한 자릿수에 대해서만 생각)
+내가 생각한 방식은 연산자 *: 0*0=1*1=0, 0*1=1*0=1로 두고 누적계산하면(xor), 1이 하나만 있는 경우 1, 0만 있는 경우 0으로 return됨. 1이 두 번 나오면 0으로 되어 괜찮음
+다만 1이 세 번 나오는 순간 1^1^1=1이 되어 문제가 생기므로 1이 두 번 나온 경우 그 다음 요소 전부에서 해당 자릿수를 0으로 만듦.
+그렇게 하면 어차피 1^1=0이고 이후로 0^0=0이 되므로 0이 됨.
 
-mask = 1111111111
-a = 1111111111
-FOR i++
-    a = a ^ (빈칸i & mask)
-    mask = a 
-
-A = 2047 (=1111111111)
+mask = 1111111111;
+result = 0;
+m = 0;
 FOR 처음 빈 칸 to 마지막 빈 칸 DO
-    A ? (A는 single B에 해당하는 원소들의 집합이 됨)
-IF A !== 0 DO
+    mp = result & 빈 칸; (새롭게 1이 두 번 나온 자릿 수 저장)
+    result = result ^ (현재 칸 & mask); (1이 하나만 있는 경우만 1로)
+    mask = mask & ~mp; (새롭게 1이 두 번 나온 자릿수 mask 0 처리)
+IF result !== 0 DO                                                          result 끝 자리는 0이 된다. 빈 칸(마지막 자리 수가 1) 두 개 이상에 대해 연산했으므로. 하나일 경우 single N에서 걸러짐.
     (위치 및 single B로 나온 숫자 찾기)
     FOR 처음 빈 칸 to 마지막 빈 칸 DO
-        IF 해당 빈 칸 bit & A !==0 DO   (A에 속한 원소가 있는 칸 찾기)
-            위치, (해당 빈 칸 & A) 값 채우고   (해당 칸 & A는 single B로 나온 원소)
+        IF 해당 빈 칸 bit & result !==0 DO   (A에 속한 원소가 있는 칸 찾기)
+            위치, (해당 빈 칸 & A) 값 채우기   (해당 칸 & A는 single B로 나온 원소, 끝 자리는 result와 &에 의해 0으로 처리 됨.)
             
 */
+
 
 
 
 function recursiveFilling(section) {
     let k;
     let a;
+    let mask;
+    let result;
+    let m;
+    let p;
+    let col;
+    let startI;
+    let startJ;
     // 먼저 section 종류 구분
     if (section < 9) {    // row
         //single N
         for (i = 0; i < 9; i++) {
             k = sudokuMatrix[section][i];
-            if (k & 1 !== 0) {    // 채워지지 않음.
-                if ( (k >> 1) & ((k >> 1) - 1) === 0) {                         // k = 0000010001 이런 형식
-                    addNumber(k-1, section, i);
+            if ( (k & 1) !== 0) {    // 채워지지 않음.
+                if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                    addNumber(k - 1, section, i);
                     recursiveFilling(section);      // row(itself)
                     recursiveFilling(i + 9);        // column
-                    recursiveFilling();             
+                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
                 }
             }
         }
         // single B
-        a = 2047;
+        mask = 1023;
+        result = 0;
+        m = 0;
         for (i = 0; i < 9; i++) {
-
-
+            m = result & sudokuMatrix[section][i];
+            result = result ^ (sudokuMatrix[section][i] & mask);
+            mask = mask & ~m;
+        }
+        if (result !== 0) {
+            for (i = 0; i < 9; i++) {
+                p = sudokuMatrix[section][i] & result
+                if (p !==0) {
+                    addNumber(p, section, i);
+                    recursiveFilling(section);      // row(itself)
+                    recursiveFilling(i + 9);        // column
+                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
+                }
+            }
         }
     }
     else if (section < 18) {    // column
+        // single N...  sudokuMatrix[i][section%9]
+        col = section%9;
         for (i = 0; i < 9; i ++) {
-            // single N...  sudokuMatrix[i][section%27]
+            k = suokuMatrix[i][col];
+            if ( (k & 1) !== 0) {
+                if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                    addNumber(k - 1, i, col);
+                    recursiveFilling(i);      // row
+                    recursiveFilling(col + 9);        // column(itself)
+                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+                }
+            }
+        }
+        // singl B
+        mask = 1023;
+        result = 0;
+        m = 0;
+        for (i = 0; i < 9; i++) {
+            m = result & sudokuMatrix[i][col];
+            result = result ^ (sudokuMatrix[i][col] & mask);
+            mask = mask & ~m;
+        }
+        if (result !== 0) {
+            for (i = 0; i < 9; i++) {
+                p = sudokuMatrix[i][col] & result
+                if (p !==0) {
+                    addNumber(p, i, col);
+                    recursiveFilling(i);      // row(itself)
+                    recursiveFilling(col + 9);        // column
+                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+                }
+            }
         }
     }
     else {      // block
-
+        startI = 3*Math.floor(section/3);
+        startJ = 3*(section%3);
+        // single N
+        for (i = startI; i < startI+3; i++) {
+            for (j = startJ; j < startJ+3; j++) {
+                k = suokuMatrix[i][j];
+                if ( (k & 1) !== 0) {
+                    if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                        addNumber(k - 1, i, j);
+                        recursiveFilling(i);      // row
+                        recursiveFilling(j + 9);        // column(itself)
+                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+                    }
+                }
+            }
+        }
+        // single B
+        mask = 1023;
+        result = 0;
+        m = 0;
+        for (i = startI; i < startI+3; i++) {
+            for (j = startJ; j < startJ+3; j++) {
+                m = result & sudokuMatrix[i][j];
+                result = result ^ (sudokuMatrix[i][j] & mask);
+                mask = mask & ~m;
+            }
+        }
+        if (result !== 0) {
+            for (i = startI; i < startI+3; i++) {
+                for (j = startJ; j < startJ+3; j++) {
+                    p = sudokuMatrix[i][j] & result
+                    if (p !==0) {
+                        addNumber(p, i, j);
+                        recursiveFilling(i);      // row(itself)
+                        recursiveFilling(j + 9);        // column
+                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+                    }
+                }
+            }
+        }
     }
-
 }
+
+
+/* bit to number in Matrix*/
+function bitToNum() {
+    let m;
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            m = [];
+            for (k = 0; k < 10; k++) {
+                if (sudokuMatrix[i][j] & (1 << k) !== 0) {
+                    m.push(k);
+                }
+            }
+            sudokuMatrix[i][j] = m;
+        }
+    }
+}
+
