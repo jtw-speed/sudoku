@@ -39,3 +39,17 @@ for (k = 0; k < 10; k++) {
         m.push(k);
     }
 }
+
+a = 1
+function recursion() {
+    if(a<1) {
+        for(i=1; i<8; i++) {
+        }
+        return;
+    }
+    for(i=0;i<2;i++) {
+        a--;
+        recursion();
+        console.log(i);
+    }
+}
