@@ -40,16 +40,34 @@ for (k = 0; k < 10; k++) {
     }
 }
 
-a = 1
-function recursion() {
-    if(a<1) {
-        for(i=1; i<8; i++) {
-        }
+
+function recursion(n) {
+    if(n<1) {
+        for(i=0; i<8; i++) {}
         return;
     }
-    for(i=0;i<2;i++) {
-        a--;
-        recursion();
+    for(i=0;i<2;i++){
+        recursion(n-1);
         console.log(i);
     }
 }
+recursion(1)
+// 여기서 i는 0, 1이 아닌 8이 출력. 즉 내부 recursion()을 거치며 i가 8이 되고, 이를 출력 후 for loop가 종료
+// 함수 내부의 변수는 밖으로 나갈 수 없다고 알고 있는데 이 경우는 왜 이럴까?
+
+// 실험 1. for loop i가 아닌 local variable도 변화할까?
+function recursion(n) {
+    let a = 1;
+    if(n<1) {        
+        //for(i=0; i<8; i++) {}
+        a = 8;
+        return;
+    }
+    for(i=0;i<2;i++){
+        recursion(n-1);
+        console.log(a);
+    }
+}
+recursion(1)
+// 1이 두 번 출력된다. 다만 주석처리한 for문을 지우면 한 번 출력된다.
+// 이는 함수 내에 정의된 local variable은 탈출 못하지만 i는 8로 탈출한다는 뜻이다.
