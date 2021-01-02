@@ -19,9 +19,9 @@ let solutionDisplay = document.querySelector('.solution');
 
 let sudokuMatrix = [];
 // sudokuMatrix를 1111111111([1,2,3,4,5,6,7,8,9] 그리고 채우기 전이다)로 설정. 1111111111=2^11-1=2047
-for (i = 0; i < 9; i++) {
+for (let i = 0; i < 9; i++) {
     sudokuMatrix.push([]);
-    for (j = 0; j < 9; j++) {
+    for (let j = 0; j < 9; j++) {
         sudokuMatrix[i].push(1023);
     }
 }
@@ -57,18 +57,18 @@ function addNumber(n, i, j) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
     // row
-    for (k = 0; k < 9; k++) {
+    for (let k = 0; k < 9; k++) {
         sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
     }
     // column
-    for (k = 0; k < 9; k++) {
+    for (let k = 0; k < 9; k++) {
         sudokuMatrix[k][j] = sudokuMatrix[k][j] & ~n;
     }
     // block
     startK = 3*Math.floor(i/3);
     startL = 3*Math.floor(j/3);
-    for (k = startK; k < startK + 3; k++) {
-        for (l = startL; l <startL + 3; l++) {
+    for (let k = startK; k < startK + 3; k++) {
+        for (let l = startL; l <startL + 3; l++) {
             sudokuMatrix[k][l] = sudokuMatrix[k][l] & ~n;            
         }
     }
@@ -83,8 +83,8 @@ function getInput() {
     console.log('got input');
     let inputs = document.querySelectorAll('.number');
     let num;
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
             num = Number(inputs[i*9+j].value);
             if (num !== 0) {
                 addNumber(1 << num, i, j);
@@ -169,10 +169,12 @@ function recursiveFilling(section) {
     let col;
     let startI;
     let startJ;
+    let x;
+
     // 먼저 section 종류 구분
     if (section < 9) {    // row
         //single N
-        for (i = 0; i < 9; i++) {
+        for (let i = 0; i < 9; i++) {
             k = sudokuMatrix[section][i];
             if ( (k & 1) !== 0) {    // 채워지지 않음.
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
@@ -187,19 +189,22 @@ function recursiveFilling(section) {
         mask = 1023;
         result = 0;
         m = 0;
-        for (i = 0; i < 9; i++) {
+        for (let i = 0; i < 9; i++) {
             m = result & sudokuMatrix[section][i];
             result = result ^ (sudokuMatrix[section][i] & mask);
             mask = mask & ~m;
         }
         if (result !== 0) {
-            for (i = 0; i < 9; i++) {
-                p = sudokuMatrix[section][i] & result
-                if (p !==0) {
-                    addNumber(p, section, i);
-                    recursiveFilling(section);      // row(itself)
-                    recursiveFilling(i + 9);        // column
-                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
+            for (let i = 0; i < 9; i++) {
+                x = sudokuMatrix[section][i];
+                if ( (x & 1) !== 0) {
+                    p = x & result;
+                    if (p !==0) {
+                        addNumber(p, section, i);
+                        recursiveFilling(section);      // row(itself)
+                        recursiveFilling(i + 9);        // column
+                        recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
+                    }
                 }
             }
         }
@@ -207,8 +212,8 @@ function recursiveFilling(section) {
     else if (section < 18) {    // column
         // single N...  sudokuMatrix[i][section%9]
         col = section%9;
-        for (i = 0; i < 9; i ++) {
-            k = suokuMatrix[i][col];
+        for (let i = 0; i < 9; i ++) {
+            k = sudokuMatrix[i][col];
             if ( (k & 1) !== 0) {
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
                     addNumber(k - 1, i, col);
@@ -222,19 +227,22 @@ function recursiveFilling(section) {
         mask = 1023;
         result = 0;
         m = 0;
-        for (i = 0; i < 9; i++) {
+        for (let i = 0; i < 9; i++) {
             m = result & sudokuMatrix[i][col];
             result = result ^ (sudokuMatrix[i][col] & mask);
             mask = mask & ~m;
         }
         if (result !== 0) {
-            for (i = 0; i < 9; i++) {
-                p = sudokuMatrix[i][col] & result
-                if (p !==0) {
-                    addNumber(p, i, col);
-                    recursiveFilling(i);      // row(itself)
-                    recursiveFilling(col + 9);        // column
-                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+            for (let i = 0; i < 9; i++) {
+                x = sudokuMatrix[i][col];
+                if ( (x & 1) !== 0) {
+                    p = x & result;
+                    if (p !==0) {
+                        addNumber(p, i, col);
+                        recursiveFilling(i);      // row(itself)
+                        recursiveFilling(col + 9);        // column
+                        recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+                    }
                 }
             }
         }
@@ -243,9 +251,9 @@ function recursiveFilling(section) {
         startI = 3*Math.floor(section/3);
         startJ = 3*(section%3);
         // single N
-        for (i = startI; i < startI+3; i++) {
-            for (j = startJ; j < startJ+3; j++) {
-                k = suokuMatrix[i][j];
+        for (let i = startI; i < startI+3; i++) {
+            for (let j = startJ; j < startJ+3; j++) {
+                k = sudokuMatrix[i][j];
                 if ( (k & 1) !== 0) {
                     if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
                         addNumber(k - 1, i, j);
@@ -260,27 +268,32 @@ function recursiveFilling(section) {
         mask = 1023;
         result = 0;
         m = 0;
-        for (i = startI; i < startI+3; i++) {
-            for (j = startJ; j < startJ+3; j++) {
+        for (let i = startI; i < startI+3; i++) {
+            for (let j = startJ; j < startJ+3; j++) {
                 m = result & sudokuMatrix[i][j];
                 result = result ^ (sudokuMatrix[i][j] & mask);
                 mask = mask & ~m;
             }
         }
         if (result !== 0) {
-            for (i = startI; i < startI+3; i++) {
-                for (j = startJ; j < startJ+3; j++) {
-                    p = sudokuMatrix[i][j] & result
-                    if (p !==0) {
-                        addNumber(p, i, j);
-                        recursiveFilling(i);      // row(itself)
-                        recursiveFilling(j + 9);        // column
-                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+            for (let i = startI; i < startI+3; i++) {
+                for (let j = startJ; j < startJ+3; j++) {
+                    x = sudokuMatrix[i][j];
+                    if ( (x & 1) !== 0) {
+                        p = x & result;
+                        if (p !==0) {
+                            addNumber(p, i, j);
+                            recursiveFilling(i);      // row(itself)
+                            recursiveFilling(j + 9);        // column
+                            recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+                        }
                     }
                 }
             }
         }
     }
+    console.log('section'+section+' done');
+    return;
 }
 
 
@@ -288,11 +301,11 @@ function recursiveFilling(section) {
 function bitToNum() {
     let m;
     let a;
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
             m = [];
             a = sudokuMatrix[i][j];
-            for (k = 0; k < 10; k++) {
+            for (let k = 0; k < 10; k++) {
                 if ( (a & (1 << k)) !== 0) {
                     m.push(k);
                 }
@@ -311,8 +324,8 @@ function bitToNum() {
 function displaySolution() {
     bitToNum();
     let sol;
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
             sol = document.createElement('div');
             sol.textContent = sudokuMatrix[i][j];
             solutionDisplay.appendChild(sol);
