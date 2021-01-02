@@ -73,6 +73,7 @@ function addNumber(n, i, j) {       // n은 0000100000 이런 형식
         }
     }
     sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
+    console.log(i+', '+j+'에 '+n+'을 채움');
 }
 // test 완
 
@@ -160,6 +161,7 @@ IF result !== 0 DO                                                          resu
 
 
 function recursiveFilling(section) {
+    console.log('section'+section+' start!');
     let k;
     let a;
     let mask;
@@ -181,7 +183,7 @@ function recursiveFilling(section) {
                     addNumber(k - 1, section, i);
                     recursiveFilling(section);      // row(itself)
                     recursiveFilling(i + 9);        // column
-                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
+                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
                 }
             }
         }
@@ -203,7 +205,7 @@ function recursiveFilling(section) {
                         addNumber(p, section, i);
                         recursiveFilling(section);      // row(itself)
                         recursiveFilling(i + 9);        // column
-                        recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3));        // block  
+                        recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
                     }
                 }
             }
@@ -219,7 +221,7 @@ function recursiveFilling(section) {
                     addNumber(k - 1, i, col);
                     recursiveFilling(i);      // row
                     recursiveFilling(col + 9);        // column(itself)
-                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
                 }
             }
         }
@@ -241,15 +243,15 @@ function recursiveFilling(section) {
                         addNumber(p, i, col);
                         recursiveFilling(i);      // row(itself)
                         recursiveFilling(col + 9);        // column
-                        recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3));        // block  
+                        recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
                     }
                 }
             }
         }
     }
     else {      // block
-        startI = 3*Math.floor(section/3);
-        startJ = 3*(section%3);
+        startI = 3*Math.floor((section-18)/3);
+        startJ = 3*((section-18)%3);
         // single N
         for (let i = startI; i < startI+3; i++) {
             for (let j = startJ; j < startJ+3; j++) {
@@ -259,7 +261,7 @@ function recursiveFilling(section) {
                         addNumber(k - 1, i, j);
                         recursiveFilling(i);      // row
                         recursiveFilling(j + 9);        // column(itself)
-                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
                     }
                 }
             }
@@ -285,14 +287,13 @@ function recursiveFilling(section) {
                             addNumber(p, i, j);
                             recursiveFilling(i);      // row(itself)
                             recursiveFilling(j + 9);        // column
-                            recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3));        // block  
+                            recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
                         }
                     }
                 }
             }
         }
     }
-    console.log('section'+section+' done');
     return;
 }
 
