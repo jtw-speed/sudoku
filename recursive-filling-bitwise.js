@@ -159,8 +159,8 @@ IF result !== 0 DO                                                          resu
 
 
 
-
 function recursiveFilling(section) {
+    
     console.log('section'+section+' start!');
     let k;
     let a;
@@ -210,6 +210,7 @@ function recursiveFilling(section) {
                 }
             }
         }
+        console.log('sectoin '+section+' done');
     }
     else if (section < 18) {    // column
         // single N...  sudokuMatrix[i][section%9]
@@ -248,6 +249,7 @@ function recursiveFilling(section) {
                 }
             }
         }
+        console.log('sectoin '+section+' done');
     }
     else {      // block
         startI = 3*Math.floor((section-18)/3);
@@ -293,6 +295,7 @@ function recursiveFilling(section) {
                 }
             }
         }
+        console.log('sectoin '+section+' done');
     }
     return;
 }
@@ -333,6 +336,9 @@ function bitToNum() {
                 if ( (a & (1 << k)) !== 0) {
                     m.push(k);
                 }
+            }
+            if (m.length === 1) {
+                m = m[0];
             }
             sudokuMatrix[i][j] = m;
         }
