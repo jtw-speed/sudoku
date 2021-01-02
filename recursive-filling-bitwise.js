@@ -298,6 +298,29 @@ function recursiveFilling(section) {
 }
 
 
+/* function solvingSimple
+그냥 모든 section에 대해 recursiveFilling을 한 번만 실행하면 됨.
+recursiveFilling을 실행하는 순간 '변동이 있는' seciton은 모두 처리가 되기 때문에.
+수학적으로(?) 설명하자면, section을 재조사 하는 경우, 변동이 있다면 처리가 되었으므로 조사할 필요가 없고, 변동이 없다면 이전 조사에서 처리가 끝났으므로 조사할 필요가 없다.
+*/
+
+function solvingSimple() {
+    for (let i = 0; i < 27; i++) {
+        recursiveFilling(i);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /* bit to number in Matrix*/
 function bitToNum() {
     let m;
