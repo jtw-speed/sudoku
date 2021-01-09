@@ -92,3 +92,35 @@ let은 변수가 선언된 블록, 구문 또는 표현식 내에서만 유효�
 
 
 추가적으로 scope 개념과 identifiler? 개념도 중요하다고 한다. 아직 잘 이해는 안되는데, 될 때 까지 하는게 내 방식이니까. 해보자.*/
+
+
+
+
+// 범위
+function fun1(x) {
+    x = 3;
+    return;
+}
+function fun2() {
+    let x = 1;
+    fun1(x);
+    console.log(x);
+}
+fun2()      // 당연히 안됨... scope문제. scope를 신경쓰거나 return으로 해결하거나 혹은 다른 방식으로.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

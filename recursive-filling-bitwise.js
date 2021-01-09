@@ -3,6 +3,9 @@
 또한 후보군 집합을 bit로 다루어 메모리나 연산효율을 높힐 수 있겠다는 생각이 들어 같이 시도.
 */
 
+/* https://www.chosun.com/site/data/html_dir/2010/08/24/2010082400075.html
+sudoku sample! 참고*/
+
 let setProblem = document.querySelector('.setProblem');
 let solveProblem = document.querySelector('.solveProblem');
 let solutionDisplay = document.querySelector('.solution');
@@ -42,18 +45,18 @@ sudokuMatrix = [
 
 /*hard sample*/
 sudokuMatrix = [
-[755, 8, 97, 741, 229, 613, 609, 256, 627]
-,[625, 593, 97, 2, 361, 873, 4, 561, 128]
-,[739, 4, 256, 737, 16, 609, 609, 547, 8]
-,[583, 579, 16, 229, 231, 103, 256, 8, 613]
-,[256, 67, 77, 237, 512, 111, 225, 181, 117]
-,[589, 32, 128, 16, 333, 333, 2, 517, 581]
-,[109, 321, 2, 877, 365, 128, 16, 549, 549]
-,[245, 209, 512, 101, 103, 119, 8, 167, 256]
-,[189, 401, 45, 813, 303, 831, 673, 64, 551]
+[583, 533, 32, 8, 853, 469, 851, 723, 403]
+,[256, 537, 579, 721, 625, 209, 595, 4, 155]
+,[589, 128, 581, 849, 2, 341, 32, 593, 281]
+,[16, 773, 965, 835, 833, 32, 8, 643, 135]
+,[549, 2, 773, 785, 128, 281, 533, 561, 64]
+,[737, 545, 8, 4, 593, 83, 531, 256, 179]
+,[143, 64, 391, 32, 285, 415, 279, 19, 512]
+,[679, 805, 16, 451, 325, 455, 327, 8, 295]
+,[47, 301, 263, 339, 349, 512, 128, 115, 311]
 ];
 
-
+let count = 81 - 23;
 
 
 
@@ -66,27 +69,45 @@ sudokuMatrix의 해당 위치를 입력 숫자로 변경한다.
 해당 숫자를 지우기 연산 (a & ~(1 << n))
 */
 
-function addNumber(n, i, j) {       // n은 0000100000 이런 형식
+function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
+    let num;
+    for (let i = 0; i < 10; i++) {      // find number. storage에 index형식으로 넣어야 함.
+        if ( (n & (1 << i)) !== 0) {
+            num = i;
+            break;
+        }
+    }
+    console.log(num);
     // row
     for (let k = 0; k < 9; k++) {
-        sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
+        if (sudokuMatrix[i][k] & n !==  0) {     // 뺄 수 있다면 빼고, storage에 저장.
+            sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
+            storage[num].push([i,k]);
+        }
     }
     // column
     for (let k = 0; k < 9; k++) {
-        sudokuMatrix[k][j] = sudokuMatrix[k][j] & ~n;
+        if (sudokuMatrix[k][j] & n !==  0) {
+            sudokuMatrix[k][j] = sudokuMatrix[k][j] & ~n;
+            storage[num].push([k,j]);
+        }
     }
     // block
     startK = 3*Math.floor(i/3);
     startL = 3*Math.floor(j/3);
     for (let k = startK; k < startK + 3; k++) {
         for (let l = startL; l <startL + 3; l++) {
-            sudokuMatrix[k][l] = sudokuMatrix[k][l] & ~n;            
+            if (sudokuMatrix[k][l] & n !==  0) {
+                sudokuMatrix[k][l] = sudokuMatrix[k][l] & ~n;
+                storage[num].push([k,l]);
+            }
         }
     }
     sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
     console.log(i+', '+j+'에 '+n+'을 채움');
+    count--;    
 }
 // test 완
 
@@ -101,7 +122,7 @@ function getInput() {
         for (let j = 0; j < 9; j++) {
             num = Number(inputs[i*9+j].value);
             if (num !== 0) {
-                addNumber(1 << num, i, j);
+                addNumber([1 << num, i, j]);
             }
         }
     }
@@ -192,8 +213,12 @@ function recursiveFilling(section) {
         for (let i = 0; i < 9; i++) {
             k = sudokuMatrix[section][i];
             if ( (k & 1) !== 0) {    // 채워지지 않음.
+                if (k === 1) {          // 모순 case!!
+                    console.log('모순입니다');
+                    return 'error';
+                }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
-                    addNumber(k - 1, section, i);
+                    addNumber([k - 1, section, i]);
                     recursiveFilling(section);      // row(itself)
                     recursiveFilling(i + 9);        // column
                     recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
@@ -215,7 +240,7 @@ function recursiveFilling(section) {
                 if ( (x & 1) !== 0) {
                     p = x & result;
                     if (p !==0) {
-                        addNumber(p, section, i);
+                        addNumber([p, section, i]);
                         recursiveFilling(section);      // row(itself)
                         recursiveFilling(i + 9);        // column
                         recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
@@ -231,8 +256,12 @@ function recursiveFilling(section) {
         for (let i = 0; i < 9; i ++) {
             k = sudokuMatrix[i][col];
             if ( (k & 1) !== 0) {
+                if (k === 1) {
+                    console.log('모순입니다');
+                    return 'error';
+                }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
-                    addNumber(k - 1, i, col);
+                    addNumber([k - 1, i, col]);
                     recursiveFilling(i);      // row
                     recursiveFilling(col + 9);        // column(itself)
                     recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
@@ -254,7 +283,7 @@ function recursiveFilling(section) {
                 if ( (x & 1) !== 0) {
                     p = x & result;
                     if (p !==0) {
-                        addNumber(p, i, col);
+                        addNumber([p, i, col]);
                         recursiveFilling(i);      // row(itself)
                         recursiveFilling(col + 9);        // column
                         recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
@@ -272,8 +301,12 @@ function recursiveFilling(section) {
             for (let j = startJ; j < startJ+3; j++) {
                 k = sudokuMatrix[i][j];
                 if ( (k & 1) !== 0) {
+                    if (k === 1) {
+                        console.log('모순입니다');
+                        return 'error';
+                    }
                     if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
-                        addNumber(k - 1, i, j);
+                        addNumber([k - 1, i, j]);
                         recursiveFilling(i);      // row
                         recursiveFilling(j + 9);        // column(itself)
                         recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
@@ -299,7 +332,7 @@ function recursiveFilling(section) {
                     if ( (x & 1) !== 0) {
                         p = x & result;
                         if (p !==0) {
-                            addNumber(p, i, j);
+                            addNumber([p, i, j]);
                             recursiveFilling(i);      // row(itself)
                             recursiveFilling(j + 9);        // column
                             recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
@@ -344,9 +377,9 @@ for candidates
 /*
 func solv(can1)
 addNumber(can1) & store
-solvingSimple() & check & store
+recursiveFilling() & check & store
 if 모순
-    addNumber & solvingSimpe() 복구
+    addNumber & recursiveFilling() 복구
     return 모순
 if 종료
     return 종료
@@ -356,13 +389,28 @@ for candidates
     solv(can1)
     if 종료
         return 종료                 -> 자식부터 부모까지 차례로 모두 종료됨.
-addNumber & solvingSimpe() 복구     -> 모든 후보가 불가능이므로 모순
+addNumber & recursiveFilling() 복구     -> 모든 후보가 불가능이므로 모순
 return 모순
 */
 
 
+let storage = [,[],[],[],[],[],[],[],[],[]];       // 형식 [x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]
 
+function solving(can1) {
+    let sections;
+    sections = locToSec(can1[1],can1[2]);
+    addNumber(can1);        // addNumber & store in storage
+    recursiveFilling(sections[0]);
+    recursiveFilling(sections[1]);
+    recursiveFilling(sections[2]);      // recursiveFilling & store in storage
 
+}
+
+// 모순 조건: 안 채웠는데 채울 게 없을 때 ex) 0000000001
+
+function locToSec(i,j) {
+    return [i, j + 9, 3 * Math.floor(i/3) + Math.floor(j/3)+18]
+}
 
 
 
