@@ -333,6 +333,50 @@ function solvingSimple() {
 
 
 
+/*
+solvingSimple()
+find min blank
+get candidates
+for candidates
+    solv(can1)
+    */
+
+/*
+func solv(can1)
+addNumber(can1) & store
+solvingSimple() & check & store
+if 모순
+    addNumber & solvingSimpe() 복구
+    return 모순
+if 종료
+    return 종료
+find min blank
+get candidates
+for candidates
+    solv(can1)
+    if 종료
+        return 종료                 -> 자식부터 부모까지 차례로 모두 종료됨.
+addNumber & solvingSimpe() 복구     -> 모든 후보가 불가능이므로 모순
+return 모순
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
