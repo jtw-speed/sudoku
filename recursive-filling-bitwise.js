@@ -87,6 +87,7 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     for (let k = 0; k < 9; k++) {
         if (sudokuMatrix[i][k] & n !==  0) {     // 뺄 수 있다면 빼고, storage에 저장.
             sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
+            console.log('num'+num);
             storage[num].push([i,k]);
         }
     }
@@ -109,7 +110,7 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
         }
     }
     sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
-    console.log(i+', '+j+'에 '+n+'을 채움');
+    console.log(i+', '+j+'에 '+n+'을 채웠음');
     count--;
     return storage;
 }
@@ -223,6 +224,7 @@ function recursiveFilling(section) {
                     return 12;      // 임의로 지정함.
                 }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                    console.log(section+', '+i+'에 '+(k-1)+'을 채울예정');
                     addNumber([k - 1, section, i]);
                     if (count === 0) {
                         return 1;       // 종료조건. 임의로 지정함
@@ -266,6 +268,7 @@ function recursiveFilling(section) {
                 if ( (x & 1) !== 0) {
                     p = x & result;
                     if (p !==0) {
+                        console.log(section+', '+i+'에 '+p+'을 채울예정');
                         addNumber([p, section, i]);
                         if (count === 0) {
                             return 1;       // 종료조건. 임의로 지정함
@@ -308,6 +311,7 @@ function recursiveFilling(section) {
                     return 12;
                 }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                    console.log(i+', '+col+'에 '+(k-1)+'을 채울예정'+' singleN');
                     addNumber([k - 1, i, col]);
                     if (count === 0) {
                         return 1;       // 종료조건. 임의로 지정함
@@ -345,12 +349,20 @@ function recursiveFilling(section) {
             result = result ^ (sudokuMatrix[i][col] & mask);
             mask = mask & ~m;
         }
+        // 디버깅
+        console.log('result = '+result);
+        if (result == 185) {
+            console.log(sudokuMatrix);
+        }
+        // 디버깅
         if (result !== 0) {
             for (let i = 0; i < 9; i++) {
                 x = sudokuMatrix[i][col];
+                console.log('x' + x);
                 if ( (x & 1) !== 0) {
                     p = x & result;
                     if (p !==0) {
+                        console.log(i+', '+col+'에 '+p+'을 채울예정' +' singleB');
                         addNumber([p, i, col]);
                         if (count === 0) {
                             return 1;       // 종료조건. 임의로 지정함
@@ -395,6 +407,7 @@ function recursiveFilling(section) {
                         return 12;
                     }
                     if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
+                        console.log(i+', '+j+'에 '+(k-1)+'을 채울예정');
                         addNumber([k - 1, i, j]);
                         if (count === 0) {
                             return 1;       // 종료조건. 임의로 지정함
@@ -442,6 +455,7 @@ function recursiveFilling(section) {
                     if ( (x & 1) !== 0) {
                         p = x & result;
                         if (p !==0) {
+                            console.log(i+', '+j+'에 '+p+'을 채울예정');
                             addNumber([p, i, j]);
                             if (count === 0) {
                                 return 1;       // 종료조건. 임의로 지정함
@@ -537,9 +551,9 @@ function restore(curStorage) {
     let y;
     for (let i = 1; i < 10; i++) {      // 1부터 9까지
         n = 1 << i;
-        for (let j = 0; j < storage[i].length; j++) {
-            x = storage[i][j][0];
-            y = storage[i][j][1];
+        for (let j = 0; j < curStorage[i].length; j++) {
+            x = curStorage[i][j][0];
+            y = curStorage[i][j][1];
             sudokuMatrix[x][y] = sudokuMatrix[x][y] | n;
         }
     }
@@ -551,21 +565,24 @@ function findMinBlank() {
     let mincandidates = [];
     let k;
     let num;
+    let candidates;
+
     for( let i = 0; i < 9; i++) {
         for ( let j = 0; j < 9; j++) {
             k = sudokuMatrix[i][j];
             if ( (k & 1) !== 0) {    // 채워지지 않음.
                 num = 0;
-                mincandidates = [];
+                candidates = [];
                 for (let h = 1; h < 10; h++) {      // 후보군 개수 count
-                    if ( (a & (1 << h)) !== 0) {
+                    if ( (k & (1 << h)) !== 0) {
                         num++;
-                        mincandidates.push(1 << h);
+                        candidates.push(1 << h);
                     }
                 }
                 if (num < minNum) {
                     minNum = num;
                     minLocation = [i,j];
+                    mincandidates = candidates;
                 }
             }
         }
