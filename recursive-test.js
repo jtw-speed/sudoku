@@ -110,10 +110,28 @@ fun2()      // 당연히 안됨... scope문제. scope를 신경쓰거나 return�
 
 
 
+// 조건문 내부 함수 호출 test
+function hi() {
+    console.log('hi');
+    return 1;
+}
+if (hi()) {
+    console.log('bye');
+}
+// 가능. 문제는 없을까?
 
+// 아무 것도 return하지 않을 때 Boolean?
+function bool() {
+    return;
+}
 
+if (bool() === 0) {
+    console.log('hi');
+}   // 안됨. ==도 안됨.
 
-
+if (!bool()) {
+    console.log('hi');
+}   // 이건 됨
 
 
 

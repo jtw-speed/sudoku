@@ -29,7 +29,7 @@ for (let i = 0; i < 9; i++) {
     }
 }
 
-/*simple sample
+/*simple sample*/
 sudokuMatrix = [
 [99, 128, 355, 333, 297, 512, 39, 16, 293]
 ,[4, 769, 8, 2, 16, 417, 673, 289, 64]
@@ -41,9 +41,11 @@ sudokuMatrix = [
 ,[128, 521, 545, 585, 4, 16, 256, 97, 2]
 ,[555, 64, 803, 128, 811, 299, 569, 4, 553]
 ];
-*/
 
-/*hard sample*/
+let count = 81 - 27;
+
+
+/*hard sample
 sudokuMatrix = [
 [583, 533, 32, 8, 853, 469, 851, 723, 403]
 ,[256, 537, 579, 721, 625, 209, 595, 4, 155]
@@ -57,7 +59,7 @@ sudokuMatrix = [
 ];
 
 let count = 81 - 23;
-
+*/
 
 
 
@@ -73,13 +75,14 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
     let num;
+    let storage = [,[],[],[],[],[],[],[],[],[]];       // 형식 [empty,x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]*/
+
     for (let i = 0; i < 10; i++) {      // find number. storage에 index형식으로 넣어야 함.
         if ( (n & (1 << i)) !== 0) {
             num = i;
             break;
         }
     }
-    console.log(num);
     // row
     for (let k = 0; k < 9; k++) {
         if (sudokuMatrix[i][k] & n !==  0) {     // 뺄 수 있다면 빼고, storage에 저장.
@@ -107,7 +110,8 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     }
     sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
     console.log(i+', '+j+'에 '+n+'을 채움');
-    count--;    
+    count--;
+    return storage;
 }
 // test 완
 
@@ -206,6 +210,7 @@ function recursiveFilling(section) {
     let startI;
     let startJ;
     let x;
+    let returnCond;
 
     // 먼저 section 종류 구분
     if (section < 9) {    // row
@@ -215,13 +220,34 @@ function recursiveFilling(section) {
             if ( (k & 1) !== 0) {    // 채워지지 않음.
                 if (k === 1) {          // 모순 case!!
                     console.log('모순입니다');
-                    return 'error';
+                    return 12;      // 임의로 지정함.
                 }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
                     addNumber([k - 1, section, i]);
-                    recursiveFilling(section);      // row(itself)
-                    recursiveFilling(i + 9);        // column
-                    recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
+                    if (count === 0) {
+                        return 1;       // 종료조건. 임의로 지정함
+                    }
+                    returnCond = recursiveFilling(section);      // row(itself)
+                    if (returnCond === 1) {             // 자식이 끝났을 때 부모까지 모두 끝내야 하며, 끝나는 원인(완성인지, 모순인지)도 계속 올려줘야 함.
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
+                    returnCond = recursiveFilling(i + 9);        // column
+                    if (returnCond === 1) {
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
+                    returnCond = recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block
+                    if (returnCond === 1) {
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
                 }
             }
         }
@@ -241,9 +267,30 @@ function recursiveFilling(section) {
                     p = x & result;
                     if (p !==0) {
                         addNumber([p, section, i]);
-                        recursiveFilling(section);      // row(itself)
-                        recursiveFilling(i + 9);        // column
-                        recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
+                        if (count === 0) {
+                            return 1;       // 종료조건. 임의로 지정함
+                        }
+                        returnCond = recursiveFilling(section);      // row(itself)
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(i + 9);        // column
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(3*Math.floor(section/3)+Math.floor(i/3)+18);        // block  
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
                     }
                 }
             }
@@ -258,13 +305,34 @@ function recursiveFilling(section) {
             if ( (k & 1) !== 0) {
                 if (k === 1) {
                     console.log('모순입니다');
-                    return 'error';
+                    return 12;
                 }
                 if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
                     addNumber([k - 1, i, col]);
-                    recursiveFilling(i);      // row
-                    recursiveFilling(col + 9);        // column(itself)
-                    recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
+                    if (count === 0) {
+                        return 1;       // 종료조건. 임의로 지정함
+                    }
+                    returnCond = recursiveFilling(i);      // row
+                    if (returnCond === 1) {
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
+                    returnCond = recursiveFilling(col + 9);        // column(itself)
+                    if (returnCond === 1) {
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
+                    returnCond = recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
+                    if (returnCond === 1) {
+                        return 1;
+                    }
+                    if (returnCond === 12) {
+                        return 12;
+                    }
                 }
             }
         }
@@ -284,9 +352,30 @@ function recursiveFilling(section) {
                     p = x & result;
                     if (p !==0) {
                         addNumber([p, i, col]);
-                        recursiveFilling(i);      // row(itself)
-                        recursiveFilling(col + 9);        // column
-                        recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
+                        if (count === 0) {
+                            return 1;       // 종료조건. 임의로 지정함
+                        }
+                        returnCond = recursiveFilling(i);      // row(itself)
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(col + 9);        // column
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(3*Math.floor(i/3)+Math.floor(col/3)+18);        // block  
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
                     }
                 }
             }
@@ -303,13 +392,34 @@ function recursiveFilling(section) {
                 if ( (k & 1) !== 0) {
                     if (k === 1) {
                         console.log('모순입니다');
-                        return 'error';
+                        return 12;
                     }
                     if ( ( (k >> 1) & ((k >> 1) - 1) ) === 0) {                         // k = 0000010001 이런 형식
                         addNumber([k - 1, i, j]);
-                        recursiveFilling(i);      // row
-                        recursiveFilling(j + 9);        // column(itself)
-                        recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
+                        if (count === 0) {
+                            return 1;       // 종료조건. 임의로 지정함
+                        }
+                        returnCond = recursiveFilling(i);      // row
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(j + 9);        // column(itself)
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
+                        returnCond = recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
+                        if (returnCond === 1) {
+                            return 1;
+                        }
+                        if (returnCond === 12) {
+                            return 12;
+                        }
                     }
                 }
             }
@@ -333,9 +443,30 @@ function recursiveFilling(section) {
                         p = x & result;
                         if (p !==0) {
                             addNumber([p, i, j]);
-                            recursiveFilling(i);      // row(itself)
-                            recursiveFilling(j + 9);        // column
-                            recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
+                            if (count === 0) {
+                                return 1;       // 종료조건. 임의로 지정함
+                            }
+                            returnCond = recursiveFilling(i);      // row(itself)
+                            if (returnCond === 1) {
+                                return 1;
+                            }
+                            if (returnCond === 12) {
+                                return 12;
+                            }
+                            returnCond = recursiveFilling(j + 9);        // column
+                            if (returnCond === 1) {
+                                return 1;
+                            }
+                            if (returnCond === 12) {
+                                return 12;
+                            }
+                            returnCond = recursiveFilling(3*Math.floor(i/3)+Math.floor(j/3)+18);        // block  
+                            if (returnCond === 1) {
+                                return 1;
+                            }
+                            if (returnCond === 12) {
+                                return 12;
+                            }
                         }
                     }
                 }
@@ -343,7 +474,7 @@ function recursiveFilling(section) {
         }
         console.log('sectoin '+section+' done');
     }
-    return;
+    return;     // 완성되지도, 모순이 있지도 않음. 제대로 채워짐.
 }
 
 
@@ -354,8 +485,15 @@ recursiveFilling을 실행하는 순간 '변동이 있는' seciton은 모두 처
 */
 
 function solvingSimple() {
+    let returnCond;
     for (let i = 0; i < 27; i++) {
-        recursiveFilling(i);
+        returnCond = recursiveFilling(i);
+        if (returnCond === 1) {
+            return 1;
+        }
+        if (returnCond === 12) {
+            return 12;
+        }
     }
 }
 
@@ -393,17 +531,104 @@ addNumber & recursiveFilling() 복구     -> 모든 후보가 불가능이므로
 return 모순
 */
 
+function restore(curStorage) {
+    let n;
+    let x;
+    let y;
+    for (let i = 1; i < 10; i++) {      // 1부터 9까지
+        n = 1 << i;
+        for (let j = 0; j < storage[i].length; j++) {
+            x = storage[i][j][0];
+            y = storage[i][j][1];
+            sudokuMatrix[x][y] = sudokuMatrix[x][y] | n;
+        }
+    }
+}
 
-let storage = [,[],[],[],[],[],[],[],[],[]];       // 형식 [x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]
+function findMinBlank() {
+    let minNum = 9;
+    let minLocation;
+    let mincandidates = [];
+    let k;
+    let num;
+    for( let i = 0; i < 9; i++) {
+        for ( let j = 0; j < 9; j++) {
+            k = sudokuMatrix[i][j];
+            if ( (k & 1) !== 0) {    // 채워지지 않음.
+                num = 0;
+                mincandidates = [];
+                for (let h = 1; h < 10; h++) {      // 후보군 개수 count
+                    if ( (a & (1 << h)) !== 0) {
+                        num++;
+                        mincandidates.push(1 << h);
+                    }
+                }
+                if (num < minNum) {
+                    minNum = num;
+                    minLocation = [i,j];
+                }
+            }
+        }
+    }
+    return [mincandidates, minLocation[0], minLocation[1]];            // [[2,4,128],i,j] 형식
+}
 
-function solving(can1) {
+
+
+
+// let storageSet = [];       // 형식 [x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]*/        노필요
+
+function solving(can1) {            // can1은 [n,i,j] 형식
     let sections;
-    sections = locToSec(can1[1],can1[2]);
-    addNumber(can1);        // addNumber & store in storage
-    recursiveFilling(sections[0]);
-    recursiveFilling(sections[1]);
-    recursiveFilling(sections[2]);      // recursiveFilling & store in storage
+    let returnCond;
+    let candidates;
+    let storage;
 
+    sections = locToSec(can1[1],can1[2]);
+    storage = addNumber(can1);        // addNumber & store in storage    
+    // recursiveFilling & store in storage
+    returnCond = recursiveFilling(sections[0]);
+    if (returnCond === 1) {     // 완료
+        console.log('완성!');
+        return 1;
+    }
+    if (returnCond === 12) {    // 모순
+        // 복구
+        restore(storage);        
+        return 12;
+    }
+    returnCond = recursiveFilling(sections[1]);
+    if (returnCond === 1) {     // 완료
+        console.log('완성!');
+        return 1;
+    }
+    if (returnCond === 12) {    // 모순
+        restore(storage);        
+        return 12;
+    }
+    returnCond = recursiveFilling(sections[2]);
+    if (returnCond === 1) {     // 완료
+        console.log('완성!');
+        return 1;
+    }
+    if (returnCond === 12) {    // 모순
+        restore(storage);
+        return 12;
+    }
+    // 통과했다면 완료도, 모순도 아직은 아닌 상태. 계속 진행.
+    // find min blank;
+    candidates = findMinBlank();
+
+    for (let i = 0; i < candidates[0].length; i++) {// [[2,4,128],i,j] 형식
+        returnCond = solving([candidates[0][i], candidates[1], candidates[2]]);
+        if (returnCond === 1) {
+            return 1;
+        }        
+    }    
+
+    // 모든 후보가 불가능 -> 모순
+    restore(storage);
+    return 12;
 }
 
 // 모순 조건: 안 채웠는데 채울 게 없을 때 ex) 0000000001
@@ -416,8 +641,41 @@ function locToSec(i,j) {
 
 
 
+function theEnd() {
+    let returnCond;
+    let candidates;
 
+    returnCond = solvingSimple();
+    console.log(returnCond);
+    if (returnCond === 1) {
+        console.log('완성!');
+        return 1;
+    }
+    if (returnCond === 12) {
+        console.log('문제오류');
+        return 12;
+    }
 
+    console.log('solvingSimple로 안풀림. 경우의 수 on');
+    candidates = findMinBlank();
+
+    for (let i = 0; i < candidates[0].length; i++) {// [[2,4,128],i,j] 형식
+        returnCond = solving([candidates[0][i], candidates[1], candidates[2]]);
+        if (returnCond === 1) {
+            return 1;
+        }        
+    }    
+
+    console.log('문제 오류');    
+}
+
+/*
+solvingSimple()
+find min blank
+get candidates
+for candidates
+    solv(can1)
+    */
 
 
 
