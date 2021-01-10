@@ -29,6 +29,8 @@ for (let i = 0; i < 9; i++) {
     }
 }
 
+let count = 81;
+
 /*simple sample
 sudokuMatrix = [
 [99, 128, 355, 333, 297, 512, 39, 16, 293]                              문제 없이 작동.
@@ -45,7 +47,7 @@ sudokuMatrix = [
 let count = 81 - 27;
 */
 
-/*hard sample*/
+/*hard sample
 sudokuMatrix = [
 [583, 533, 32, 8, 853, 469, 851, 723, 403]
 ,[256, 537, 579, 721, 625, 209, 595, 4, 155]
@@ -59,7 +61,7 @@ sudokuMatrix = [
 ];
 
 let count = 81 - 23;
-
+*/
 
 
 
@@ -720,7 +722,7 @@ function theEnd() {
         }        
     }    
 
-    console.log('문제 오류');    
+    console.log('문제 오류');
 }
 
 /*
@@ -729,10 +731,16 @@ find min blank
 get candidates
 for candidates
     solv(can1)
-    */
+*/
 
 
-
+// 실행 시간 계산
+function solTime() {
+    let start = new Date();
+    theEnd();
+    let end = new Date();
+    console.log((end-start)+'ms');
+}
 
 
 
@@ -783,5 +791,5 @@ function displaySolution() {
 
 
 setProblem.addEventListener('click', getInput); // 이게 계속 안됐는데 html에서 form을 지우니 해결. 모르는 것은 사용 ㄴ.
-solveProblem.addEventListener('click', solvingSimple);
+solveProblem.addEventListener('click', solTime);
 solveProblem.addEventListener('click', displaySolution);
