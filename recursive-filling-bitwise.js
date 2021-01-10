@@ -75,7 +75,10 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     let startK;
     let startL;
     let num;
-    let storage = [,[],[],[],[],[],[],[],[],[]];       // 형식 [empty,x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]*/
+    // let storage = [[],[],[],[],[],[],[],[],[],[]];  형식 [x,x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]    노필요.
+
+
+
 
     for (let i = 0; i < 10; i++) {      // find number. storage에 index형식으로 넣어야 함.
         if ( (n & (1 << i)) !== 0) {
@@ -83,19 +86,35 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
             break;
         }
     }
+
+    // 해당 칸 저장
+    for (let k = 0; k < 10; k++) {
+        if ((sudokuMatrix[i][j] & (1<<k)) !==0) {
+            if ( k !== num) {
+                if (storageCond) {
+                    console.log('k' + k);
+                    storageSet[storageSet.length - 1][k].push([i,j]);
+                }
+            }            
+        }
+    }
+
     // row
     for (let k = 0; k < 9; k++) {
-        if (sudokuMatrix[i][k] & n !==  0) {     // 뺄 수 있다면 빼고, storage에 저장.
+        if ((sudokuMatrix[i][k] & n) !==  0) {     // 뺄 수 있다면 빼고, storage에 저장.                        괄호 주의
             sudokuMatrix[i][k] = sudokuMatrix[i][k] & ~n;
-            console.log('num'+num);
-            storage[num].push([i,k]);
+            if (storageCond) {
+                storageSet[storageSet.length - 1][num].push([i,k]);
+            }
         }
     }
     // column
     for (let k = 0; k < 9; k++) {
-        if (sudokuMatrix[k][j] & n !==  0) {
+        if ((sudokuMatrix[k][j] & n) !==  0) {
             sudokuMatrix[k][j] = sudokuMatrix[k][j] & ~n;
-            storage[num].push([k,j]);
+            if (storageCond) {
+                storageSet[storageSet.length - 1][num].push([k,j]);
+            }
         }
     }
     // block
@@ -103,18 +122,25 @@ function addNumber([n, i, j]) {       // n은 0000100000 이런 형식
     startL = 3*Math.floor(j/3);
     for (let k = startK; k < startK + 3; k++) {
         for (let l = startL; l <startL + 3; l++) {
-            if (sudokuMatrix[k][l] & n !==  0) {
+            if ((sudokuMatrix[k][l] & n) !==  0) {
                 sudokuMatrix[k][l] = sudokuMatrix[k][l] & ~n;
-                storage[num].push([k,l]);
+                if (storageCond) {
+                    storageSet[storageSet.length - 1][num].push([k,l]);
+                }
             }
         }
     }
+
+
+
+
     sudokuMatrix[i][j] = n; // 마지막에 처리해야 함. 안그러면 채운 뒤 빼버림. 빼고->채우는 순서
     console.log(i+', '+j+'에 '+n+'을 채웠음');
     count--;
-    return storage;
 }
 // test 완
+
+
 
 
 
@@ -258,10 +284,12 @@ function recursiveFilling(section) {
         result = 0;
         m = 0;
         for (let i = 0; i < 9; i++) {
+            console.log(sudokuMatrix[section][i]);
             m = result & sudokuMatrix[section][i];
             result = result ^ (sudokuMatrix[section][i] & mask);
             mask = mask & ~m;
         }
+        console.log('result = ' + result);
         if (result !== 0) {
             for (let i = 0; i < 9; i++) {
                 x = sudokuMatrix[section][i];
@@ -344,21 +372,22 @@ function recursiveFilling(section) {
         mask = 1023;
         result = 0;
         m = 0;
+        // dbg
+        if (section === 15) {
+            for (let i = 0; i < 9; i++) {
+                console.log('section ')
+                console.log(sudokuMatrix[i][col]);
+            }
+        }
+        //dbg
         for (let i = 0; i < 9; i++) {
             m = result & sudokuMatrix[i][col];
             result = result ^ (sudokuMatrix[i][col] & mask);
             mask = mask & ~m;
         }
-        // 디버깅
-        console.log('result = '+result);
-        if (result == 185) {
-            console.log(sudokuMatrix);
-        }
-        // 디버깅
         if (result !== 0) {
             for (let i = 0; i < 9; i++) {
                 x = sudokuMatrix[i][col];
-                console.log('x' + x);
                 if ( (x & 1) !== 0) {
                     p = x & result;
                     if (p !==0) {
@@ -545,11 +574,15 @@ addNumber & recursiveFilling() 복구     -> 모든 후보가 불가능이므로
 return 모순
 */
 
-function restore(curStorage) {
+function restore() {
+    let curStorage = storageSet[storageSet.length - 1];
     let n;
     let x;
     let y;
-    for (let i = 1; i < 10; i++) {      // 1부터 9까지
+
+    count = count + curStorage[0].length;
+
+    for (let i = 0; i < 10; i++) {      // 1부터 9까지
         n = 1 << i;
         for (let j = 0; j < curStorage[i].length; j++) {
             x = curStorage[i][j][0];
@@ -557,6 +590,8 @@ function restore(curStorage) {
             sudokuMatrix[x][y] = sudokuMatrix[x][y] | n;
         }
     }
+    storageSet.pop();
+    console.log('지웟구연');
 }
 
 function findMinBlank() {
@@ -593,16 +628,17 @@ function findMinBlank() {
 
 
 
-// let storageSet = [];       // 형식 [x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]*/        노필요
+// storageSet = [storage부모 storage자식 ...]. storage 형식 [x,x,x,x,x,x,x,x,x], index: 숫자, x: 위치. x 형식 [[i0,j0],[i1,j1], ...]
+let storageSet = [];
 
 function solving(can1) {            // can1은 [n,i,j] 형식
     let sections;
     let returnCond;
     let candidates;
-    let storage;
 
+    storageSet.push([[],[],[],[],[],[],[],[],[],[]]);     // 저장공간 추가.
     sections = locToSec(can1[1],can1[2]);
-    storage = addNumber(can1);        // addNumber & store in storage    
+    addNumber(can1);        // addNumber & store in storage    
     // recursiveFilling & store in storage
     returnCond = recursiveFilling(sections[0]);
     if (returnCond === 1) {     // 완료
@@ -611,7 +647,7 @@ function solving(can1) {            // can1은 [n,i,j] 형식
     }
     if (returnCond === 12) {    // 모순
         // 복구
-        restore(storage);        
+        restore();        
         return 12;
     }
     returnCond = recursiveFilling(sections[1]);
@@ -620,7 +656,7 @@ function solving(can1) {            // can1은 [n,i,j] 형식
         return 1;
     }
     if (returnCond === 12) {    // 모순
-        restore(storage);        
+        restore();        
         return 12;
     }
     returnCond = recursiveFilling(sections[2]);
@@ -629,7 +665,7 @@ function solving(can1) {            // can1은 [n,i,j] 형식
         return 1;
     }
     if (returnCond === 12) {    // 모순
-        restore(storage);
+        restore();
         return 12;
     }
     // 통과했다면 완료도, 모순도 아직은 아닌 상태. 계속 진행.
@@ -644,7 +680,7 @@ function solving(can1) {            // can1은 [n,i,j] 형식
     }    
 
     // 모든 후보가 불가능 -> 모순
-    restore(storage);
+    restore();
     return 12;
 }
 
@@ -656,7 +692,7 @@ function locToSec(i,j) {
 
 
 
-
+let storageCond = 0;
 
 function theEnd() {
     let returnCond;
@@ -672,6 +708,7 @@ function theEnd() {
         console.log('문제오류');
         return 12;
     }
+    storageCond = 1;
 
     console.log('solvingSimple로 안풀림. 경우의 수 on');
     candidates = findMinBlank();
